@@ -20,39 +20,13 @@ server.auth.strategy("restricted","cookie",{
   cookie: "session",
   isSecure: false,
   redirectTo: "/login",
-  appendNext: true,
-  validateFunc : (request, cookie) => {
+  appendNext: true
+  /*validateFunc : (request, cookie) => {
 
       var usr = cookie.user;
-      console.log("usr from cookie: "+usr);
-
-      var queryString = "SELECT * FROM users;"
-      var user;
-      db.query(
-        queryString,
-        function(err, result, fields){
-          if(err) throw err;
-
-          var allUsers = result;
-          console.log(result);
-          for (var i=0; i< allUsers.length; i++)
-          {
-            const storeUser = allUsers[i];
-            if(usr === storeUser.username)
-            {
-              console.log("user found in db");
-              user = Object.assign({}, storeUser);;
-              break;
-            }
-          }
-          console.log("session user is : "+user.username);
-
-        }
-
-      );
-      console.log("outside: "+user.username);
+      return{valid: user!==undefined, credentials: user};
     }
-
+*/
 
 });
 
@@ -62,14 +36,15 @@ server.views({
   engines: {
     hbs: require("handlebars")
   },
-  isCached: false,
-  context: (request) => {
+  isCached: false
+  /*context: (request) => {
     console.log("user credentials returned are: ");
     console.log("request.auth.credentials");
     return {
       user: request.auth.credentials
     }
   }
+  */
 });
 
 
