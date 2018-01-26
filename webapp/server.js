@@ -75,7 +75,8 @@ server.register(CookieAuth, function (err) {
     path: "/restricted",
     handler: function(request, reply){
       reply.view("restricted", {
-        title: "restricted page title"
+        title: "restricted page title",
+        servertime: new Date()
       });
     },
     config: {
@@ -225,8 +226,7 @@ server.register(CookieAuth, function (err) {
       */
       var queryString = "SELECT username,email FROM users;"
       db.query(queryString, function(err, result){
-        if(!result.length==0){
-          var userFound;
+        var userFound = false;
           for(var i=0; i<result.length; i++)
           {
             console.log("comparing : "+result[0].username +" : " +result[0].email);
@@ -242,7 +242,7 @@ server.register(CookieAuth, function (err) {
           {
             return reply.view("signup" , {errorMsg: "username/email already exists"});
           }
-          console.log("creating ner user:" +inUsername);
+          console.log("creating new user:" +inUsername);
           queryString = "INSERT INTO users (username,password,email) values ('"+inUsername+"','"+encryptedPassword+"','"+inEmail+"');";
           db.query(queryString,function(err, result){
             if(err) throw err;
@@ -250,7 +250,7 @@ server.register(CookieAuth, function (err) {
             return reply.view("signup",{successMsg: "user created successfuly"});
           });
 
-        }
+
       });
 
       db.query('SELECT * FROM users',
