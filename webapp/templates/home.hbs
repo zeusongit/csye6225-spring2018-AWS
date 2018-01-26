@@ -7,7 +7,15 @@ THIS IS HOME PAGE
 <br>
 
 title of the page is: {{title}}
+<br>
+{{#if user}}
 
-<a href="/login"> login </a>
+<b>{{user.username}}
+<br>
+<a href="/restricted"> restricted</a>
+{{else}}
+<a href="/login">login</a>
+{{/if}}
+
 </body>
 </html>
