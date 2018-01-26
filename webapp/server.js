@@ -32,10 +32,11 @@ server.register(Vision);
 // register plugins to server instance
 server.register(CookieAuth, function (err) {
 
-  var validation = function(request, reply, callback){
+  var isSessionValid = function(request, reply, callback){
     const user = reply.authUser;
     if(!user)
     {
+
       return callback(null, false)
     }
     callback(err, true, user)
@@ -48,7 +49,7 @@ server.register(CookieAuth, function (err) {
     redirectTo: '/login',
     redirectOnTry: false,
     appendNext: true,
-    validateFunc: validation
+    validateFunc: isSessionValid
   }); // your TODO: options -> there are required ones
 
   server.auth.default({strategy: 'session', mode: 'try'});
@@ -85,15 +86,7 @@ server.register(CookieAuth, function (err) {
     }
   });
 
-  server.route({
-    method: "GET",
-    path: "/ash",
-    handler: function(request, reply){
-      reply.view("restricted", {
-        title: "restricted page title"
-      });
-    }
-  });
+
 
   server.route({
     method: "GET",
@@ -116,73 +109,60 @@ server.register(CookieAuth, function (err) {
     handler: async function(request, reply){
       const inUser = request.payload.username;
       const inPwd = request.payload.password;
-      var authUser = {
-        username: inUser
-      }
+
       var allUsers = null;
       var pwdHash;
-      if(!inUser=='vikas' && !inPwd=='vikas')
-      {
-          return reply.view(login);
-      }
-      request.cookieAuth.set({ authUser });
-      if(request.query.next)
-      {
-      return reply.redirect(request.query.next);
-      }
-      return reply.redirect("/");
 
-
-      /*db.query(
-        "SELECT username FROM users;",
-        function(err, result, fields){
-          if(err) throw err;
+        var queryString = "SELECT username FROM users;";
+        db.query(queryString, function (err, result) {
+          if (err) throw err;
           allUsers = result;
-          var user = null;
+          console.log("totalUsers: "+allUsers.length);
+          var dbUser;
           for (var i=0; i< allUsers.length; i++)
           {
             const storeUser = allUsers[i];
+
+            console.log("comparing with: "+storeUser.username);
             if(inUser === storeUser.username)
             {
 
-              user = storeUser;
+              dbUser = storeUser;
+              console.log("user found in db: "+dbUser);
               break;
             }
           }
-          if(user){
-            console.log("User found: "+user.username);
-            console.log("now checking its password");
-            var usr = user.username;
-            var queryString = "SELECT password FROM users where username='"+usr+"';"
-            console.log("query: "+queryString);
-            db.query(
-              queryString,
-              function(err, result, fields){
-                pwdHash = result[0].password;
-                //return reply(pwdHash);
-                console.log("user: "+usr);
-                console.log("pwdHash: "+pwdHash);
-                console.log("inPwd: "+inPwd);
-                Bcrypt.compare(inPwd, pwdHash, function(err, res){
-                  if(res)
-                  {
-                    console.log("user: "+usr+" authenticated");
-                    request.cookieAuth.set({user: usr});
-                    console.log(request.query);
-                    return reply.redirect(request.query.next, {user: 'vikas'});
-                  }
-                  else {
-                    return reply.redirect("/login");
-                  }
-                });
-              }
-            );
-
-
+          console.log("user: "+dbUser);
+          if(!dbUser)
+          {
+            console.log("user not found");
+            return reply.view("login", {errorMsg: "Invalid username/password"});
           }
-        }
 
-      );*/
+          queryString = "SELECT password FROM users where username='"+dbUser.username+"';"
+          db.query(queryString,function(error, result){
+            var pwdHash = result[0].password;
+            Bcrypt.compare(inPwd,pwdHash,function(err,res){
+              var authUser = {
+                username: dbUser.username
+              }
+              if(!res)
+              {
+                return reply.view("login",{errorMsg: "invalid username/password"});
+              }
+              request.cookieAuth.set({ authUser });
+              if(!request.query.next)
+              {
+                return reply.redirect("/");
+              }
+              return reply.redirect(request.query.next);
+            });
+
+          });
+
+
+        });
+
 
 
 
@@ -217,33 +197,73 @@ server.register(CookieAuth, function (err) {
   });
 
   server.route({
+    method: 'GET',
+    path: '/signup',
+    handler: function(request, reply){
+      return reply.view("signup");
+
+    }
+
+  });
+
+  server.route({
       method: "POST",
       path: "/signup",
       handler: function (request, reply) {
       console.log("signing up new");
-      reply("signing up");
-      const username = request.payload.username;
-      const email = request.payload.email;
-      const password = request.payload.password;
+      const inUsername = request.payload.username;
+      const inEmail = request.payload.email;
+      const inPassword = request.payload.password;
+
 
       //Encryption
       var salt = Bcrypt.genSaltSync();
-      var encryptedPassword = Bcrypt.hashSync(password, salt);
+      var encryptedPassword = Bcrypt.hashSync(inPassword, salt);
 
-      //Decrypt
+      /*//Decrypt
       var orgPassword = Bcrypt.compareSync(password, encryptedPassword);
+      */
+      var queryString = "SELECT username,email FROM users;"
+      db.query(queryString, function(err, result){
+        if(!result.length==0){
+          var userFound;
+          for(var i=0; i<result.length; i++)
+          {
+            console.log("comparing : "+result[0].username +" : " +result[0].email);
+            if(inUsername === result[i].username || inEmail === result[i].email)
+            {
+              console.log("user alreay exists");
+              userFound = true;
+              break;
+            }
 
-      db.query('SELECT uid, username, email FROM users WHERE uid = "' + uid + '"',
+          }
+          if(userFound===true)
+          {
+            return reply.view("signup" , {errorMsg: "username/email already exists"});
+          }
+          console.log("creating ner user:" +inUsername);
+          queryString = "INSERT INTO users (username,password,email) values ('"+inUsername+"','"+encryptedPassword+"','"+inEmail+"');";
+          db.query(queryString,function(err, result){
+            if(err) throw err;
+            console.log(result);
+            return reply.view("signup",{successMsg: "user created successfuly"});
+          });
+
+        }
+      });
+
+      db.query('SELECT * FROM users',
       function (error, results, fields) {
           if (error) throw error;
-
-          reply(results);
+          console.log(results);
       });
-    },
+    }
 
 
 
   });
+
 
 
   server.views({
@@ -255,6 +275,7 @@ server.register(CookieAuth, function (err) {
     context: (request) => {
       return {
         user: request.auth.credentials
+
       };
     }
 
