@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="fragments/header :: header"/>
+<body>
+<div th:replace="fragments/navigation :: navigation"/>
+
+
+<!-- Page Content -->
+<div class="container">
+            <p>
+                Welcome,<br />
+                Enter Username and Password below to login.
+            </p>
+    <div class="loginForm">
+        <form action="#" th:action="@{/post}" th:object="${user}" method="post">
+            <table>
+                <tr><td>Username: </td><td><input type="text" placeholder="Enter username" name="username" id="username" th:field="*{username}"/></td>
+                    <td th:if="${#fields.hasErrors('username')}" th:errors="*{username}">username error message</td>
+                </tr>
+                <tr><td>Password: </td><td><input type="password" placeholder="Enter password" name="password" id="password" th:field="*{password}"/></td>
+                    <td th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password error message</td></tr>
+                <tr><td></td><td colspan="2"><input type="submit" value="Log In" name="btnLogin" id="btnLogin"/></td></tr>
+            </table>
+        </form>
+    </div>
+    
+</div>
+<!-- /.container -->
+
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>
+
+
