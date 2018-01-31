@@ -1,0 +1,21 @@
+<% include partials/header %>
+<h1>Web App Login (Express-Node)</h1>
+<%- messages('messages',locals) %>
+<% if(errors){%>
+    <% errors.forEach(function(error){ %>
+      <div class="alert alert-danger">
+        <%= error.msg %>
+      </div>
+    <% }) %>
+<% } %>
+<form method="POST" action="/signup">
+  <table>
+    <tr><td>
+  Username: </td><td> <input type="text" name="username" id="username"></td></tr>
+  <tr><td>
+  Password: </td><td><input type="password" name="pass" id="pass"></td></tr>
+  <tr><td></td><td>
+  <input type="submit" value="Signup"></td></tr>
+</table>
+</form>
+<% include partials/footer %>
