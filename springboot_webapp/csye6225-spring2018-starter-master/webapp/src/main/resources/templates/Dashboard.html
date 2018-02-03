@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="fragments/header :: header"/>
+<body>
+<div th:replace="fragments/navigation :: navigation"/>
+
+<div class="container">
+    <h4>Username:</h4>
+    <p th:text="${username}"></p>
+    <br/>
+    <h4>Password:</h4>
+    <p th:text="${password}"></p>
+    <br/>
+    <h4>Status:</h4>
+    <p th:text="${status}"></p>
+</div>
+
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>
