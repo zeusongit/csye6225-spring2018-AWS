@@ -3,8 +3,8 @@ node_js:
   - "9.4.0"
 script:
   - npm install
+  - npm test
   - cd ..
   - ls -lrt
-  - npm test
   - zip csye6225-spring2018
   - ls -lrt
