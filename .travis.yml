@@ -6,5 +6,5 @@ script:
   - npm test
   - cd ..
   - ls -lrt
-  - zip csye6225-spring2018
+  - zip -r csye6225-spring2018.zip csye6225-spring2018
   - ls -lrt
