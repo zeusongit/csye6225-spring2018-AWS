@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+	echo " PLEASE PASS <STACK_NAME> as parameter while running this script "
+	exit 1
+fi
+
 #Retrieving VPC Name
 vpc="$1-csye6225-vpc-1"
 vpcname=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Key=='Name']|[?Value=='$vpc']].Tags[0].Value" --output text)
@@ -26,7 +31,7 @@ aws ec2 delete-internet-gateway --internet-gateway-id $IGW_Id
 echo "Internet Gateway deleted successfully!!"
 
 # Retrieving main route table
-main_route_tbl_id=$(aws ec2 describe-route-tables --query "RouteTables[?VpcId=='$vpc_id']|[?Associations[?Main -ne true]].RouteTableId" --output text)
+main_route_tbl_id=$(aws ec2 describe-route-tables --query "RouteTables[?VpcId=='$vpc_id']|[?Associations[?Main!=true]].RouteTableId" --output text)
 
 echo "id = $main_route_tbl_id"
 
@@ -45,9 +50,3 @@ echo "Route table deleted!!"
 #Delete vpc
 aws ec2 delete-vpc --vpc-id $vpc_id
 echo "VPC deleted!!"
-
-
-
-
-
-
