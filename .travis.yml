@@ -7,3 +7,4 @@ script:
   - ls -lrt
   - npm test
   - zip csye6225-spring2018
+  - ls -lrt
