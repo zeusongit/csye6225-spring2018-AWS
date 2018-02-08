@@ -4,4 +4,6 @@ node_js:
 script:
   - npm install
   - cd ..
-  - ls -lrt 
+  - ls -lrt
+  - npm test
+  - zip csye6225-spring2018
