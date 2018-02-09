@@ -1,0 +1,64 @@
+{
+
+    "Description" : "Creation of Stack for Assignment 3",
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Parameters" : {
+      "stackname" : {
+        "Description" : "Stack Name",
+        "Type" : "String",
+        "Default" : "stack01",
+
+      }
+    },
+
+
+        "Resources": {
+        "EC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+        "KeyName" : "csye6225_pub",
+                "ImageId": "ami-66506c1c",
+                "InstanceType": "t2.micro",
+                "SecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "WebServerSecurityGroup",
+                            "GroupId"1
+                        ]
+                    }
+                ],
+        "DisableApiTermination": "TRUE",
+        "BlockDeviceMappings" : [
+                {
+                "DeviceName" : "/dev/sda1",
+                "Ebs" : {
+                          "DeleteOnTermination": true,
+                          "SnapshotId": "snap-0cfc17b071e696816",
+                          "VolumeSize": 16,
+                          "VolumeType": "gp2"
+                        }
+                }
+                ]
+            }
+        },
+
+    "Outputs" : {
+
+        "vpcId" : {
+
+            "Description" : "The resource id of the created vpc",
+
+            "Value" : {
+
+                "Ref" : "vpc1"
+
+            }
+
+        }
+
+    }
+
+
+
+}
