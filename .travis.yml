@@ -11,8 +11,8 @@ script:
   - ls -lrt
 
 cache:
-    directories:
-	-node_modules
+  directories:
+    -node_modules
 
 notifications:
   email:
