@@ -1,0 +1,90 @@
+{
+
+    "Description" : "Creation of Stack for Assignment 3",
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Parameters" : {
+      "stackname" : {
+        "Description" : "Stack Name",
+        "Type" : "String",
+        "Default" : "stack01",
+
+      }
+    },
+
+
+    "Resources" : {
+
+        "vpc1" : {
+          "Type" : "AWS::EC2::VPC",
+          "Properties" : {
+            "CidrBlock" : "10.0.0.0/16",
+            "EnableDnsSupport" : true,
+            "EnableDnsHostnames" : false,
+            "InstanceTenancy" : "default",
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-vpc"]] }}]
+          }
+        },
+
+        "ig1" : {
+          "Type" : "AWS::EC2::InternetGateway",
+          "Properties" : {
+          "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-InternetGateway"]] }}]
+          }
+        },
+
+        "vpc1Attch1" : {
+          "Type" : "AWS::EC2::VPCGatewayAttachment",
+          "Properties" : {
+            "InternetGatewayId" : {"Ref" : "ig1"},
+            "VpcId" : {"Ref" : "vpc1"}
+            }
+
+
+          },
+
+          "routeTable1" : {
+            "Type" : "AWS::EC2::RouteTable",
+            "Properties" : {
+              "VpcId" : {"Ref" : "vpc1"},
+              "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-public-route-table"]] }}]
+            }
+          },
+
+          "route1" : {
+            "Type" : "AWS::EC2::Route",
+            "Properties" : {
+              "DestinationCidrBlock" : "0.0.0.0/0",
+              "GatewayId" : {"Ref" : "ig1"},
+              "RouteTableId" : {"Ref" : "routeTable1"}
+
+            }
+          }
+
+
+
+
+
+
+
+    },
+
+    "Outputs" : {
+
+        "vpcId" : {
+
+            "Description" : "The resource id of the created vpc",
+
+            "Value" : {
+
+                "Ref" : "vpc1"
+
+            }
+
+        }
+
+    }
+
+
+
+}
