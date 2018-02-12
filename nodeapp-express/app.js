@@ -113,7 +113,7 @@ app.post('/signup',(req,res)=>{
       var flag=false;
       let sql1="select username from `user` where `username`='"+req.body.username+"'";
       let query1=db.query(sql1,(err,result)=>{
-        if(result!=null)
+        if(result.length>0)
         {
           flag=true;
           console.log(flag+'--userexist'+err+'|'+result);
@@ -159,5 +159,5 @@ app.use('/login',login);
 
 //Start Server
 app.listen('3030',()=>{
-  console.log('Server started on 3000')
+  console.log('Server started on 3030')
 });
