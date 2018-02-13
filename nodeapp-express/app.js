@@ -1,4 +1,8 @@
+
 const express=require('express');
+//const busboy = require('express-busboy');
+//const fileUpload = require('express-fileupload');
+const multer = require('multer')
 const path=require('path');
 const expressValidator=require('express-validator');
 const bodyParser=require('body-parser');
@@ -24,6 +28,33 @@ db.connect((err)=>{
 //  }
 //  console.log("Mysql connected!...")
 //});
+//Set Storage engine
+const storage = multer.diskStorage({
+	destination:'./public/images/upload_images/',
+	filename: function(req, file, callback) {
+		callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+	}
+});
+
+//init upload
+const upload=multer({
+  storage:storage,
+  limits:{fileSize:1000000},
+  fileFilter:function(req,file,callback){
+    checkFileType(file,callback);
+  }
+}).single('fileupload');
+
+function checkFileType(file,callback){
+  const fileTypes=/jpeg|jpg|png|gif/;
+  const extName=fileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimeType=fileTypes.test(file.mimetype);
+  if(mimeType && extName){
+    return callback(null,true);
+  } else{
+    callback('Error: Images Only');
+  }
+}
 
 const app=express();
 
@@ -33,10 +64,14 @@ app.set('views',path.join(__dirname,'views'))
 
 //Body parser middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({extended:true}));
 
 //static file path
 app.use(express.static(path.join(__dirname,'public')));
+
+//express file uploader
+//app.use(fileUpload({ safeFileNames: true, preserveExtension: true }));
+
 
 //Define global variables
 app.use((req,res,next)=>{
@@ -79,7 +114,15 @@ app.get('/logout',(req,res)=>{
 });
 app.get('/dashboard',(req,res)=>{
   if(req.session.username)
-  {res.render('dashboard',{id:req.session.username,date:new Date()});}
+  {
+    var username=req.session.username;
+    var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
+    db.query(sql, function(err, result){
+      var imagename=result[0].image;
+      if(imagename===null){imagename="no-image.png";}
+      res.render('dashboard',{user:result[0],date:new Date(),imagename:imagename});
+    });
+  }
   else{
     req.flash('danger','User Unauthorized!');
     res.redirect('/');}
@@ -103,6 +146,7 @@ app.post('/signup',(req,res)=>{
   else{
     req.checkBody('username','Please enter Username!').notEmpty();
     req.checkBody('pass','Please enter Password!').notEmpty();
+    req.checkBody('email','Please enter Email!').notEmpty();
     var errors=req.validationErrors();
     if(errors){
       res.render('signup',{
@@ -111,7 +155,7 @@ app.post('/signup',(req,res)=>{
     }
     else{
       var flag=false;
-      let sql1="select username from `user` where `username`='"+req.body.username+"'";
+      let sql1="select username from `user` where `username`='"+req.body.username+"' OR `email`='"+req.body.email+"'";
       let query1=db.query(sql1,(err,result)=>{
         if(result.length>0)
         {
@@ -128,19 +172,20 @@ app.post('/signup',(req,res)=>{
           const sess=req.session;
           let user={
             username:req.body.username.trim(),
-            password:req.body.pass.trim()
+            password:req.body.pass.trim(),
+            email:req.body.email.trim()
           };
-          var h=bcrypt.hashSync(req.body.pass,5);
-          let sql2="insert into `user` (`username`,`password`,`created_at`,`updated_at`)values('"+req.body.username+"','"+h+"',now(),now())";
+          var hash=bcrypt.hashSync(req.body.pass.trim(),5);
+          let sql2="insert into `user` (`username`,`password`,`email`,`created_at`,`updated_at`)values('"+req.body.username+"','"+hash+"','"+req.body.email+"',now(),now())";
           let query2=db.query(sql2,(err,result)=>{
-            if(result==='undefined')
+            if(result.length>0)
             {
-              console.log('notdone'+err);
+              console.log('insert error:'+err);
               req.flash('danger','User not signed!');
               res.render('/signup');
             }
             else{
-              console.log('done2'+result);
+              console.log('signed in:'+result);
               req.flash('success','User signed up! Log In now');
               res.redirect('/');
             }
@@ -148,11 +193,95 @@ app.post('/signup',(req,res)=>{
         }
         }
       });
-
     }
   }
 });
+app.get('/updateprofile',(req,res)=>{
+  if(req.session.username)
+  {
+    var username=req.session.username;
+    var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
+    db.query(sql, function(err, result){
+      var imagename=result[0].image;
+      if(imagename===null){imagename="no-image.png";}
+      res.render('updateprofile',{user:result[0],imagename:imagename});
+    });
+  }
+  else{
+    req.flash('danger','User Unauthorized!');
+    res.redirect('/');}
+});
+app.post('/updateprofile',(req,res)=>{
+  if(req.session.username)
+  {
+    //model prep in case of error
+    var username=req.session.username;
+    var ftype=req.body.ftype;
+    var rs=null;
+    var imagename="no-image.png";
+    var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
+    db.query(sql, function(err, result){
+      imagename=result[0].image;
+      rs=result;
+    });
+  if(ftype==="f2"){
+      req.checkBody('aboutme','Please enter about me!').notEmpty();
+      req.checkBody('aboutme','About me cannot exceed 140 characters!').isLength({max:140});
+      var errors=req.validationErrors();
+      if(errors){
+        console.log(errors[0]);
+        res.render('updateprofile',{user:rs,imagename:imagename,errors:errors});
+      }
+      else{
+        sql="update `user` set `about`='"+req.body.aboutme+"' where `username`='"+username+"'";
+        db.query(sql, function(err, result){
+          if(err){
+            req.flash('danger','Updation Unsuccessful');
+            res.redirect('/dashboard');
+          }
+          if(result){
+            req.flash('success','About me updated successfully');
+            res.redirect('/dashboard');
+          }
+        });
+      }
+    }
+    else{
+        upload(req,res,(err)=>{
+        if(err){
+          req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
+          res.redirect('/updateprofile');
+          console.log("error in upload");
+        }
+        else{
+          if(req.file===undefined){
+            req.flash('danger','Select an image to upload');
+            res.redirect('/updateprofile');
+            console.log("no image selected");
+          }
+          else{
+            sql="update `user` set `image`='"+req.file.filename+"' where `username`='"+username+"'";
+            db.query(sql, function(err, result){
+              if(err){
+                req.flash('danger','Updation Unsuccessful');
+                res.redirect('/dashboard');
+              }
+              if(result){
+                req.flash('success','Profile picture updated successfully');
+                res.redirect('/dashboard');
+              }
+            });
+          }
+        }
+      });
+    }
+  }
+  else{
+    req.flash('danger','User Unauthorized!');
+    res.redirect('/');
+  }
 
+});
 //Route Files
 let login=require('./routes/login');
 app.use('/login',login);

@@ -14,9 +14,12 @@
     "connect-flash": "^0.1.1",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "express-busboy": "^6.0.1",
+    "express-fileupload": "^0.4.0",
     "express-messages": "^1.0.1",
     "express-session": "^1.15.6",
     "express-validator": "^4.3.0",
+    "multer": "^1.3.0",
     "mysql": "^2.15.0"
   }
 }
