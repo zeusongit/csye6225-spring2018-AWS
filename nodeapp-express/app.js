@@ -10,7 +10,7 @@ const flash=require('connect-flash');
 const session = require('express-session');
 const bcrypt=require('bcrypt');
 
-
+var persist = require('./persistence/persist.js');
 
 const conn=require('./dbconn.js');
 const db=new conn();
@@ -28,33 +28,7 @@ db.connect((err)=>{
 //  }
 //  console.log("Mysql connected!...")
 //});
-//Set Storage engine
-const storage = multer.diskStorage({
-	destination:'./public/images/upload_images/',
-	filename: function(req, file, callback) {
-		callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
-	}
-});
 
-//init upload
-const upload=multer({
-  storage:storage,
-  limits:{fileSize:1000000},
-  fileFilter:function(req,file,callback){
-    checkFileType(file,callback);
-  }
-}).single('fileupload');
-
-function checkFileType(file,callback){
-  const fileTypes=/jpeg|jpg|png|gif/;
-  const extName=fileTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimeType=fileTypes.test(file.mimetype);
-  if(mimeType && extName){
-    return callback(null,true);
-  } else{
-    callback('Error: Images Only');
-  }
-}
 
 const app=express();
 
@@ -247,33 +221,12 @@ app.post('/updateprofile',(req,res)=>{
       }
     }
     else{
-        upload(req,res,(err)=>{
-        if(err){
-          req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
-          res.redirect('/updateprofile');
-          console.log("error in upload");
-        }
-        else{
-          if(req.file===undefined){
-            req.flash('danger','Select an image to upload');
-            res.redirect('/updateprofile');
-            console.log("no image selected");
-          }
-          else{
-            sql="update `user` set `image`='"+req.file.filename+"' where `username`='"+username+"'";
-            db.query(sql, function(err, result){
-              if(err){
-                req.flash('danger','Updation Unsuccessful');
-                res.redirect('/dashboard');
-              }
-              if(result){
-                req.flash('success','Profile picture updated successfully');
-                res.redirect('/dashboard');
-              }
-            });
-          }
-        }
-      });
+        console.log("APP>.JS::::::::::::::");
+        console.log(req);
+        console.log(res);
+        console.log("::::::::::::::::::::::::");
+        persist.persistImage(req,res)
+
     }
   }
   else{
