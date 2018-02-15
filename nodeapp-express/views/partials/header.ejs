@@ -17,9 +17,11 @@
             <li class="active"><a href="/">Home</a></li>
             <li><a href="/signup">Signup</a></li>
           </ul>
+          <% if(userCheck){%>
           <ul class="nav navbar-nav navbar-right" style="padding-right:100px">
             <li><a href="/logout">Logout</a></li>
           </ul>
+          <% } %>
         </div><!--/.nav-collapse -->
       </div><!--/.container-fluid -->
     </nav>

@@ -1,5 +1,8 @@
 
 const express=require('express');
+const AWS = require('aws-sdk');
+const multerS3 = require('multer-s3');
+//AWS.config.loadFromPath('./config.json');
 //const busboy = require('express-busboy');
 //const fileUpload = require('express-fileupload');
 const multer = require('multer')
@@ -22,6 +25,8 @@ db.connect((err)=>{
   console.log("Mysql connected!...");
 });
 
+const app=express();
+const s3 = new AWS.S3();
 //db.connect((err)=>{
 //  if(err){
 //    throw err;
@@ -32,13 +37,23 @@ db.connect((err)=>{
 const storage = multer.diskStorage({
 	destination:'./public/images/upload_images/',
 	filename: function(req, file, callback) {
-		callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+		callback(null, file.originalname + '-' + Date.now() + path.extname(file.originalname))
 	}
 });
-
+const s3storage=multerS3({
+    s3: s3,
+    bucket: 'dummy-bucket-152',//bucketname
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});//fieldname
+    },
+    key: function (req, file, cb) {
+      cb(null, file.originalname + '-' + Date.now() + path.extname(file.originalname))//uploaded file name after upload
+    }
+  });
 //init upload
 const upload=multer({
-  storage:storage,
+  //storage:storage,
+  storage:s3storage,
   limits:{fileSize:1000000},
   fileFilter:function(req,file,callback){
     checkFileType(file,callback);
@@ -55,8 +70,16 @@ function checkFileType(file,callback){
     callback('Error: Images Only');
   }
 }
+/*
+to get images
 
-const app=express();
+var urlParams = {Bucket: 'myBucket', Key: 'imageName'};
+s3Bucket.getSignedUrl('getObject', urlParams, function(err, url){
+  console.log('the url of the image is', url);
+})
+
+*/
+
 
 //View Engine
 app.set('view engine','ejs');
@@ -73,13 +96,6 @@ app.use(express.static(path.join(__dirname,'public')));
 //app.use(fileUpload({ safeFileNames: true, preserveExtension: true }));
 
 
-//Define global variables
-app.use((req,res,next)=>{
-  res.locals.errors=null;
-  next();
-});
-
-
 //session
 app.use(session({
   secret: 'keyboard cat',
@@ -92,6 +108,12 @@ app.use((req,res,next)=>{
   next();
 });
 app.use(expressValidator());
+//Define global variables
+app.use((req,res,next)=>{
+  res.locals.errors=null;
+  res.locals.userCheck = req.session.username;
+  next();
+});
 
 //Index Routes
 app.get('/',(req,res)=>{
@@ -107,6 +129,7 @@ app.get('/',(req,res)=>{
 app.get('/logout',(req,res)=>{
   if(req.session.username){
   req.session.username=null;
+  userCheck=null;
   console.log('Logged out');
   req.flash('success','Logged Out!');
   }
@@ -212,8 +235,14 @@ app.get('/updateprofile',(req,res)=>{
     res.redirect('/');}
 });
 app.post('/updateprofile',(req,res)=>{
+//  res.send('Successfully uploaded ' + req.files.length + ' files!')
+//});
   if(req.session.username)
   {
+    //app.post('/upload', upload.array('photos', 3), function(req, res, next) {
+    //res.send('Successfully uploaded ' + req.files.length + ' files!')
+    //})
+
     //model prep in case of error
     var username=req.session.username;
     var ftype=req.body.ftype;
@@ -247,6 +276,8 @@ app.post('/updateprofile',(req,res)=>{
       }
     }
     else{
+      //upload.array('fileupload', 1)
+      //upload.array('fileupload', 1)(req,res,(err)=>{
         upload(req,res,(err)=>{
         if(err){
           req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
@@ -287,6 +318,6 @@ let login=require('./routes/login');
 app.use('/login',login);
 
 //Start Server
-app.listen('3030',()=>{
-  console.log('Server started on 3030')
+app.listen('3333',()=>{
+  console.log('Server started on 3031')
 });
