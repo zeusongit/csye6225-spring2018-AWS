@@ -40,7 +40,7 @@ const uploadDir="images/upload_images/";
 if(process.env.NODE_ENV==="local")
 {
    storage = multer.diskStorage({
-  	destination:'./public/images/upload_images/',
+  	destination:'./public/'+uploadDir,
   	filename: function(req, file, callback) {
   		callback(null, file.originalname + '-' + dt + path.extname(file.originalname))
   	}
@@ -115,6 +115,7 @@ app.use(expressValidator());
 app.use((req,res,next)=>{
   res.locals.errors=null;
   res.locals.userCheck = req.session.username;
+  res.locals.accessSource = null;
   next();
 });
 
@@ -144,7 +145,7 @@ app.get('/dashboard',(req,res)=>{
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
     db.query(sql, function(err, result){
       var imagename=result[0].image;
-      if(imagename===null){imagename="no-image.png";}
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
       res.render('dashboard',{user:result[0],date:new Date(),imagename:imagename});
     });
   }
@@ -228,7 +229,7 @@ app.get('/updateprofile',(req,res)=>{
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
     db.query(sql, function(err, result){
       var imagename=result[0].image;
-      if(imagename===null){imagename="no-image.png";}
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
       res.render('updateprofile',{user:result[0],imagename:imagename});
     });
   }
@@ -246,6 +247,7 @@ app.post('/updateprofile',(req,res)=>{
     //model prep in case of error
     var username=req.session.username;
     var ftype=req.body.ftype;
+    console.log(ftype);
     var rs=null;
     var imagename="no-image.png";
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
@@ -275,9 +277,20 @@ app.post('/updateprofile',(req,res)=>{
         });
       }
     }
-    else if(ftype==="f1"){
-      //upload.array('fileupload', 1)
-      //upload.array('fileupload', 1)(req,res,(err)=>{
+    else if(ftype==="f3"){
+      var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+      db.query(sql, function(err, result){
+        if(err){
+          req.flash('danger','Updation Unsuccessful');
+          res.redirect('/dashboard');
+        }
+        if(result){
+          req.flash('success','Profile picture removed successfully');
+          res.redirect('/dashboard');
+        }
+      });
+    }
+    else{
         upload(req,res,(err)=>{
         if(err){
           req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
@@ -328,34 +341,31 @@ app.post('/updateprofile',(req,res)=>{
         }
       });
     }
-    else if(ftype==="f3"){
-      var sql="update `user` set `image`='NULL' where `username`='"+username+"'";
-      db.query(sql, function(err, result){
-        if(err){
-          req.flash('danger','Updation Unsuccessful');
-          res.redirect('/dashboard');
-        }
-        if(result){
-          req.flash('success','Profile picture updated successfully');
-          res.redirect('/dashboard');
-        }
-      });
-    }
   }
   else{
     req.flash('danger','User Unauthorized!');
     res.redirect('/');
   }
 
-  /*
-  to get images
-
-
-
-
-  */
-
 });
+
+app.get('/profile/:username',(req,res)=>{
+  var username = req.params.username;
+  if(username)
+  {
+    var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
+    db.query(sql, function(err, result){
+      var imagename=result[0].image;
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
+      res.render('dashboard',{user:result[0],date:new Date(),imagename:imagename,accessSource:"public"});
+    });
+  }
+  else{
+    req.flash('danger','Request denied!');
+    res.redirect('/');
+  }
+});
+
 //Route Files
 let login=require('./routes/login');
 app.use('/login',login);
