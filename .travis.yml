@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - "9.4.0"
+
 script:
   - npm install
   - npm test
@@ -8,3 +9,13 @@ script:
   - ls -lrt
   - zip -r csye6225-spring2018.zip csye6225-spring2018
   - ls -lrt
+
+cache:
+  directories:
+    -node_modules
+
+notifications:
+  email:
+    on_success: always
+    on_failure: always
+
