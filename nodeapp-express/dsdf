@@ -35,11 +35,11 @@ const s3 = new AWS.S3();
 //});
 //Set Storage engine
 const dt=Date.now();
-var storage=null;
+const storage=null;
 const uploadDir="images/upload_images/";
 if(process.env.NODE_ENV==="local")
 {
-   storage = multer.diskStorage({
+  const storage = multer.diskStorage({
   	destination:'./public/images/upload_images/',
   	filename: function(req, file, callback) {
   		callback(null, file.originalname + '-' + dt + path.extname(file.originalname))
@@ -48,7 +48,7 @@ if(process.env.NODE_ENV==="local")
 }
 else if(process.env.NODE_ENV==="dev")
 {
-  storage=multerS3({
+const storage=multerS3({
     s3: s3,
     bucket: 'dummy-bucket-152',//bucketname
     metadata: function (req, file, cb) {
@@ -236,11 +236,7 @@ app.get('/updateprofile',(req,res)=>{
     req.flash('danger','User Unauthorized!');
     res.redirect('/');}
 });
-
-
-
 app.post('/updateprofile',(req,res)=>{
-
   if(req.session.username)
   {
     //model prep in case of error
@@ -275,7 +271,7 @@ app.post('/updateprofile',(req,res)=>{
         });
       }
     }
-    else if(ftype==="f1"){
+    else{
       //upload.array('fileupload', 1)
       //upload.array('fileupload', 1)(req,res,(err)=>{
         upload(req,res,(err)=>{
@@ -291,28 +287,22 @@ app.post('/updateprofile',(req,res)=>{
             console.log("no image selected");
           }
           else{
+            var u_image=null;
             if(process.env.NODE_ENV==="dev")
             {
               var urlParams = {Bucket: 'dummy-bucket-152', Key: req.file.originalname + '-' + dt + path.extname(req.file.originalname)};
               s3.getSignedUrl('getObject', urlParams, function(err, url){
-                var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
-                db.query(sql, function(err, result){
-                  if(err){
-                    req.flash('danger','Updation Unsuccessful');
-                    res.redirect('/dashboard');
-                  }
-                  if(result){
-                    req.flash('success','Profile picture updated successfully');
-                    res.redirect('/dashboard');
-                  }
-                });
+                console.log('the url of the image is', url);
+                console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+                u_image=url;
               });
             }
             else if(process.env.NODE_ENV==="local")
             {
               console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
-              var u_image=uploadDir + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
-              var sql="update `user` set `image`='"+u_image+"' where `username`='"+username+"'";
+              u_image=uploadDir + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
+            }
+              sql="update `user` set `image`='"+u_image+"' where `username`='"+username+"'";
               db.query(sql, function(err, result){
                 if(err){
                   req.flash('danger','Updation Unsuccessful');
@@ -323,21 +313,7 @@ app.post('/updateprofile',(req,res)=>{
                   res.redirect('/dashboard');
                 }
               });
-            }
           }
-        }
-      });
-    }
-    else if(ftype==="f3"){
-      var sql="update `user` set `image`='NULL' where `username`='"+username+"'";
-      db.query(sql, function(err, result){
-        if(err){
-          req.flash('danger','Updation Unsuccessful');
-          res.redirect('/dashboard');
-        }
-        if(result){
-          req.flash('success','Profile picture updated successfully');
-          res.redirect('/dashboard');
         }
       });
     }
