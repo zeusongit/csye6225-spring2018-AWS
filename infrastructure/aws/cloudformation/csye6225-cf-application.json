@@ -8,10 +8,8 @@
         "Description" : "Stack Name",
         "Type" : "String",
         "Default" : "stack01"
-
       }
     },
-
     "Resources": {
         "EC2Instance": {
             "Type": "AWS::EC2::Instance",
@@ -30,28 +28,6 @@
                 }
                 ]
             }
-        },
-        "myDynamoDBTable" : {
-          "Type" : "AWS::DynamoDB::Table",
-          "Properties" : {
-            "AttributeDefinitions" : [
-              {
-                "AttributeName" : "id",
-                "AttributeType" : "S"
-              }
-            ],
-            "KeySchema" : [
-              {
-                "AttributeName" : "id",
-                "KeyType" : "HASH"
-              }
-            ],
-            "ProvisionedThroughput" : {
-        "ReadCapacityUnits" : "5",
-              "WriteCapacityUnits" : "5"
-            },
-            "TableName" : "csye6255"
-          }
         }
 }
 }
