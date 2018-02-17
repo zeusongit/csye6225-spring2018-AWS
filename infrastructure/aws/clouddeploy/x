@@ -1,0 +1,16 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::csye6225-spring2018-aggarwalash-test.me"
+            ]
+        }
+    ]
+}
+
+csye6225-spring2018-aggarwalash-test.me
