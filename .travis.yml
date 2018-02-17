@@ -4,7 +4,7 @@ node_js:
 
 branches:
   only:
-    -$branch
+    -Lab-6
 
 script:
   - pwd
@@ -12,7 +12,7 @@ script:
   - npm test
   - cd ..
   - ls -lrt
-  - zip -r csye6225-spring2018.zip csye6225-spring2018
+  - zip -r csye6225-spring2018.zip csye6225-spring2018 2>$1 1>/dev/null
   - ls -lrt
 
 cache:
