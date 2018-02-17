@@ -8,10 +8,8 @@
         "Description" : "Stack Name",
         "Type" : "String",
         "Default" : "stack01"
-
       }
     },
-
     "Resources": {
         "EC2Instance": {
             "Type": "AWS::EC2::Instance",
@@ -30,6 +28,7 @@
                 }
                 ]
             }
+
         }
 }
 }
