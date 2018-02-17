@@ -6,6 +6,15 @@
      <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+   <script type="text/javascript">
+   function remove()
+   {
+     document.getElementById("ftype").value ="f3";
+     document.getElementById("aboutme").value = "--";
+     var x = document.getElementsByName('frm2');
+     x[0].submit();
+   }
+   </script>
 </head>
 <body>
 
@@ -17,9 +26,11 @@
             <li class="active"><a href="/">Home</a></li>
             <li><a href="/signup">Signup</a></li>
           </ul>
-          <ul class="nav navbar-nav navbar-right">
+          <% if(userCheck){%>
+          <ul class="nav navbar-nav navbar-right" style="padding-right:100px">
             <li><a href="/logout">Logout</a></li>
           </ul>
+          <% } %>
         </div><!--/.nav-collapse -->
       </div><!--/.container-fluid -->
     </nav>
