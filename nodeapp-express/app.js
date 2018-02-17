@@ -1,5 +1,8 @@
 
 const express=require('express');
+const AWS = require('aws-sdk');
+const multerS3 = require('multer-s3');
+//AWS.config.loadFromPath('./config.json');
 //const busboy = require('express-busboy');
 //const fileUpload = require('express-fileupload');
 const multer = require('multer')
@@ -10,7 +13,7 @@ const flash=require('connect-flash');
 const session = require('express-session');
 const bcrypt=require('bcrypt');
 
-var persist = require('./persistence/persist.js');
+
 
 const conn=require('./dbconn.js');
 const db=new conn();
@@ -22,15 +25,64 @@ db.connect((err)=>{
   console.log("Mysql connected!...");
 });
 
+const app=express();
+const s3 = new AWS.S3();
 //db.connect((err)=>{
 //  if(err){
 //    throw err;
 //  }
 //  console.log("Mysql connected!...")
 //});
+//Set Storage engine
+const dt=Date.now();
+var storage=null;
+const uploadDir="images/upload_images/";
+if(process.env.NODE_ENV==="local")
+{
+   storage = multer.diskStorage({
+  	destination:'./public/'+uploadDir,
+  	filename: function(req, file, callback) {
+  		callback(null, file.originalname + '-' + dt + path.extname(file.originalname))
+  	}
+  });
+}
+else if(process.env.NODE_ENV==="dev")
+{
+  storage=multerS3({
+    s3: s3,
+    bucket: 'dummy-bucket-152',//bucketname
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});//fieldname
+    },
+    key: function (req, file, cb) {
+      cb(null, file.originalname + '-' + dt + path.extname(file.originalname))//uploaded file name after upload
+    }
+  });
+}
+else{console.log("3");}
+//init upload
+const upload=multer({
+  //storage:storage,
+  storage:storage,
+  limits:{fileSize:1000000},
+  fileFilter:function(req,file,callback){
+    checkFileType(file,callback);
+    console.log(file);
+  }
+}).single('fileupload');
+
+function checkFileType(file,callback){
+  const fileTypes=/jpeg|jpg|png|gif/;
+  const extName=fileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimeType=fileTypes.test(file.mimetype);
+  if(mimeType && extName){
+    return callback(null,true);
+  } else{
+    callback('Error: Images Only');
+  }
+}
 
 
-const app=express();
 
 //View Engine
 app.set('view engine','ejs');
@@ -47,13 +99,6 @@ app.use(express.static(path.join(__dirname,'public')));
 //app.use(fileUpload({ safeFileNames: true, preserveExtension: true }));
 
 
-//Define global variables
-app.use((req,res,next)=>{
-  res.locals.errors=null;
-  next();
-});
-
-
 //session
 app.use(session({
   secret: 'keyboard cat',
@@ -66,6 +111,13 @@ app.use((req,res,next)=>{
   next();
 });
 app.use(expressValidator());
+//Define global variables
+app.use((req,res,next)=>{
+  res.locals.errors=null;
+  res.locals.userCheck = req.session.username;
+  res.locals.accessSource = null;
+  next();
+});
 
 //Index Routes
 app.get('/',(req,res)=>{
@@ -93,7 +145,7 @@ app.get('/dashboard',(req,res)=>{
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
     db.query(sql, function(err, result){
       var imagename=result[0].image;
-      if(imagename===null){imagename="no-image.png";}
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
       res.render('dashboard',{user:result[0],date:new Date(),imagename:imagename});
     });
   }
@@ -177,7 +229,7 @@ app.get('/updateprofile',(req,res)=>{
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
     db.query(sql, function(err, result){
       var imagename=result[0].image;
-      if(imagename===null){imagename="no-image.png";}
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
       res.render('updateprofile',{user:result[0],imagename:imagename});
     });
   }
@@ -185,12 +237,17 @@ app.get('/updateprofile',(req,res)=>{
     req.flash('danger','User Unauthorized!');
     res.redirect('/');}
 });
+
+
+
 app.post('/updateprofile',(req,res)=>{
+
   if(req.session.username)
   {
     //model prep in case of error
     var username=req.session.username;
     var ftype=req.body.ftype;
+    console.log(ftype);
     var rs=null;
     var imagename="no-image.png";
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
@@ -220,13 +277,69 @@ app.post('/updateprofile',(req,res)=>{
         });
       }
     }
+    else if(ftype==="f3"){
+      var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+      db.query(sql, function(err, result){
+        if(err){
+          req.flash('danger','Updation Unsuccessful');
+          res.redirect('/dashboard');
+        }
+        if(result){
+          req.flash('success','Profile picture removed successfully');
+          res.redirect('/dashboard');
+        }
+      });
+    }
     else{
-        console.log("APP>.JS::::::::::::::");
-        console.log(req);
-        console.log(res);
-        console.log("::::::::::::::::::::::::");
-        persist.persistImage(req,res)
-
+        upload(req,res,(err)=>{
+        if(err){
+          req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
+          res.redirect('/updateprofile');
+          console.log("error in upload");
+        }
+        else{
+          if(req.file===undefined){
+            req.flash('danger','Select an image to upload');
+            res.redirect('/updateprofile');
+            console.log("no image selected");
+          }
+          else{
+            if(process.env.NODE_ENV==="dev")
+            {
+              var urlParams = {Bucket: 'dummy-bucket-152', Key: req.file.originalname + '-' + dt + path.extname(req.file.originalname)};
+              s3.getSignedUrl('getObject', urlParams, function(err, url){
+                var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
+                db.query(sql, function(err, result){
+                  if(err){
+                    req.flash('danger','Updation Unsuccessful');
+                    res.redirect('/dashboard');
+                  }
+                  if(result){
+                    req.flash('success','Profile picture updated successfully');
+                    res.redirect('/dashboard');
+                  }
+                });
+              });
+            }
+            else if(process.env.NODE_ENV==="local")
+            {
+              console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+              var u_image=uploadDir + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
+              var sql="update `user` set `image`='"+u_image+"' where `username`='"+username+"'";
+              db.query(sql, function(err, result){
+                if(err){
+                  req.flash('danger','Updation Unsuccessful');
+                  res.redirect('/dashboard');
+                }
+                if(result){
+                  req.flash('success','Profile picture updated successfully');
+                  res.redirect('/dashboard');
+                }
+              });
+            }
+          }
+        }
+      });
     }
   }
   else{
@@ -235,11 +348,29 @@ app.post('/updateprofile',(req,res)=>{
   }
 
 });
+
+app.get('/profile/:username',(req,res)=>{
+  var username = req.params.username;
+  if(username)
+  {
+    var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
+    db.query(sql, function(err, result){
+      var imagename=result[0].image;
+      if(imagename===null){imagename=uploadDir+"no-image.png";}
+      res.render('dashboard',{user:result[0],date:new Date(),imagename:imagename,accessSource:"public"});
+    });
+  }
+  else{
+    req.flash('danger','Request denied!');
+    res.redirect('/');
+  }
+});
+
 //Route Files
 let login=require('./routes/login');
 app.use('/login',login);
 
 //Start Server
-app.listen('3030',()=>{
-  console.log('Server started on 3030')
+app.listen('3333',()=>{
+  console.log('Server started on 3031')
 });
