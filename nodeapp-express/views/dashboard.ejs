@@ -1,10 +1,30 @@
 <% include partials/header %>
-<h1>Web App Login (Express-Node)</h1>
+<% if(!accessSource) { %>
+<h1>Dashboard</h1><br/>
 <%- messages('messages',locals) %>
-<br/>
-<h4>Welcome, <%= id %></h4>
+<h3>Welcome, <span style="color:#19B5FE"><%= user.username %></span></h3>
 <h5><%= date %></h5>
-
+<h5><a href="/updateprofile" style="text-decoration:none;padding:5px 10px;background-color:#6C7A89;color:#fff;border-radius:20px">Update Profile</a></h5>
+<% }else{ %>
+  <h3>Profile View</h3>
+  <%- messages('messages',locals) %>
+  <h1><span style="color:#19B5FE;font-size:40px"><%= user.username %></span></h1>
+  <% } %>
+<br/>
+<div class="row">
+  <div class="col-sm-4" style="padding-top:2%">
+    <table style="font-size:1.5em;" width="100%">
+      <tr style="font-size:0.9em;color:#6C7A89"><td class="col-sm-3">Username</td><td>:&nbsp;&nbsp;&nbsp;<%= user.username %></td></tr>
+      <tr style="font-size:0.9em;color:#6C7A89"><td class="col-sm-3">Email</td><td style="text-align:justify">:&nbsp;&nbsp;&nbsp;<%= user.email %></td></tr>
+      <tr><td colspan="2"><br/></td></tr>
+      <tr><td colspan="2"><span style="padding:5px 10px;background-color:#fff;border:1px #19B5FE solid;color:#19B5FE;font-size:18px;border-radius:10px">About Me</span></td></tr>
+      <tr><td colspan="2" style="text-align:justify;padding-top:15px"><%= user.about %></td></tr>
+    </table>
+  </div>
+  <div class="col-sm-3">
+    <img src="<%= (!accessSource)?imagename:'../'+imagename %>" class="img-circle img-responsive" height="13em"/>
+  </div>
+</div>
 
 
 <% include partials/footer %>
