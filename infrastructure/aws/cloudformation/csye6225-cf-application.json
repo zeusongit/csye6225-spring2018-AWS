@@ -8,6 +8,7 @@
         "Description" : "Stack Name",
         "Type" : "String",
         "Default" : "stack01"
+<<<<<<< HEAD
 
       },
       "dbsubnet" : {
@@ -24,6 +25,10 @@
 
     },
 
+=======
+      }
+    },
+>>>>>>> 4eb7703541c3fdb597f2e4d14fbaf4ba42cf465b
     "Resources": {
         "EC2Instance": {
             "Type": "AWS::EC2::Instance",
@@ -42,6 +47,7 @@
                 }
                 ]
             }
+<<<<<<< HEAD
         },
 
 
@@ -84,5 +90,9 @@
     "PubliclyAccessible" : "false"
   }
 }
+=======
+
+        }
+>>>>>>> 4eb7703541c3fdb597f2e4d14fbaf4ba42cf465b
 }
 }
