@@ -15,6 +15,22 @@ script:
   - zip -r csye6225-spring2018.zip csye6225-spring2018 2>$1 1>/dev/null
   - ls -lrt
 
+after_success:
+  - pwd
+  - ls -ltr
+  - mkdir codedeploy
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 infrastructure/aws/codedeploy/appspec.yml
+  - ls -al
+  - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy/
+  - ls -al
+  - pwd
+  - cd codedeploy
+  - ls -al
+  - pwd
+  - cd ..
+  - pwd
+  - ls -al
+
 cache:
   directories:
     -node_modules
