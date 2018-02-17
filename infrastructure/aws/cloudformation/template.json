@@ -59,116 +59,15 @@
               "RouteTableId" : {"Ref" : "routeTable1"}
 
             }
-          },
-
-         "mySubnet1" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-            "VpcId" : { "Ref" : "vpc1" },
-            "CidrBlock" : "10.0.0.0/24",
-            "AvailabilityZone" : "us-east-1a"
           }
-         },
-        "mySubnetRouteTableAssociation1" : {
-         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-         "Properties" : {
-            "SubnetId" : { "Ref" : "mySubnet1" },
-            "RouteTableId" : { "Ref" : "routeTable1" }
-         }
-      },
-
-          "routeTable2" : {
-            "Type" : "AWS::EC2::RouteTable",
-            "Properties" : {
-              "VpcId" : {"Ref" : "vpc1"},
-              "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-private-route-table"]] }}]
-            }
-          },
 
 
-         "mySubnet2" : {
-          "Type" : "AWS::EC2::Subnet",
-          "Properties" : {
-            "VpcId" : { "Ref" : "vpc1" },
-            "CidrBlock" : "10.0.1.0/24",
-            "AvailabilityZone" : "us-east-1a"
-          }
-         },
-        "mySubnetRouteTableAssociation2" : {
-         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-         "Properties" : {
-            "SubnetId" : { "Ref" : "mySubnet2" },
-            "RouteTableId" : { "Ref" : "routeTable2" }
-         }
-      },
 
 
-        "WebServerSecurityGroup": {
-          "Type": "AWS::EC2::SecurityGroup",
-          "Properties": {
-          "GroupName" : "csye6225-webapp",
-          "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443",
-          "VpcId": { "Ref" : "vpc1" },
-          "SecurityGroupIngress": [
-              {
-                  "IpProtocol": "tcp",
-                  "FromPort": "80",
-                  "ToPort": "80",
-                  "CidrIp": "0.0.0.0/0"
-              },
-              {
-                  "IpProtocol": "tcp",
-                  "FromPort": "22",
-                  "ToPort": "22",
-                  "CidrIp": "0.0.0.0/0"
-              },
-              {
-                  "IpProtocol": "tcp",
-                  "FromPort": "443",
-                  "ToPort": "443",
-                  "CidrIp": "0.0.0.0/0"
-              }
-          ]
-      }
-  },
 
-         "DBEC2SecurityGroup": {
-       "Type": "AWS::EC2::SecurityGroup",
-       "Properties": {
-          "SecurityGroupIngress": [{
-              "IpProtocol" : "tcp",
-              "FromPort" : "3306",
-              "ToPort" : "3306"
-            }],
-      "GroupDescription": "Web app Access"
-    }
-  },
 
-  "DBInstance" : {
-    "Type": "AWS::RDS::DBInstance",
-    "Properties": {
-      "DBName"            : "csye6225",
-      "Engine"            : "MySQL",
-      "MultiAZ"           : No ,
-      "MasterUsername"    : "DBUser",
-      "DBInstanceClass"   : "db.t2.medium" ,
-      "AllocatedStorage"  : "10" ,
-      "MasterUsername": "csye6225master" ,
-      "MasterUserPassword": "csye6225password",
-      "DBInstanceIdentifier": "csye6225-spring18",
-      "PubliclyAccessible" : No,
-      "StorageType": "gp2",
-      "VPCSecurityGroups" : [
-                              { "Fn::GetAtt":
-                                  [ "DBEC2SecurityGroup",
-                                     "GroupId"
-                                  ]
-                              }
-                            ]
-    }
-  }
- },       
 
+    },
 
     "Outputs" : {
 
