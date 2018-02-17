@@ -2,7 +2,12 @@ language: node_js
 node_js:
   - "9.4.0"
 
+branches:
+  only:
+    -$branch
+
 script:
+  - pwd
   - npm install
   - npm test
   - cd ..
@@ -18,4 +23,3 @@ notifications:
   email:
     on_success: always
     on_failure: always
-
