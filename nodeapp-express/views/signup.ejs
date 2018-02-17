@@ -1,5 +1,5 @@
 <% include partials/header %>
-<h1>Web App Login (Express-Node)</h1>
+<h1>Web App Signup</h1><br/>
 <%- messages('messages',locals) %>
 <% if(errors){%>
     <% errors.forEach(function(error){ %>
@@ -14,6 +14,8 @@
   Username: </td><td> <input type="text" name="username" id="username"></td></tr>
   <tr><td>
   Password: </td><td><input type="password" name="pass" id="pass"></td></tr>
+  <tr><td>
+  Email: </td><td><input type="text" name="email" id="email"></td></tr>
   <tr><td></td><td>
   <input type="submit" value="Signup"></td></tr>
 </table>
