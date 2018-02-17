@@ -9,7 +9,19 @@
         "Type" : "String",
         "Default" : "stack01"
 
+      },
+      "dbsubnet" : {
+        "Description" : "DB Subnet Group name",
+        "Type" : "String"
+
+      },
+      "s3domain" : {
+        "Description" : "DB Subnet Group name",
+        "Type" : "String"
+
       }
+
+
     },
 
     "Resources": {
@@ -18,7 +30,7 @@
             "Properties": {
                 "ImageId": "ami-66506c1c",
                 "InstanceType": "t2.micro",
-                "DisableApiTermination": "True",
+                "DisableApiTermination": "False",
                 "BlockDeviceMappings" : [
                 {
                 "DeviceName" : "/dev/sda1",
@@ -30,6 +42,47 @@
                 }
                 ]
             }
-        }
+        },
+
+
+
+        "S3" : {
+  "Type" : "AWS::S3::Bucket",
+  "Properties" : {
+    "BucketName" : {"Ref" : "s3domain"},
+  }
+},
+
+"DynamoDBTable": {
+  "Type" : "AWS::DynamoDB::Table",
+  "Properties" : {
+    "AttributeDefinitions" : [ {"AttributeName" : "id", "AttributeType" : "S"}],
+    "KeySchema" : [ {"AttributeName" : "id", "KeyType" : "HASH"} ],
+    "ProvisionedThroughput" : {
+   "ReadCapacityUnits" : 20000,
+   "WriteCapacityUnits" : 20000
+}
+  }
+},
+
+
+
+    "RDSDB" :   {
+  "Type" : "AWS::RDS::DBInstance",
+  "Properties" :
+  {
+    "AllocatedStorage" : "5",
+    "DBInstanceClass" : "db.t2.medium",
+    "DBInstanceIdentifier" : "csye6225-spring2018",
+    "DBName" : "csye6225",
+    "DBSubnetGroupName" :{"Ref" : "dbsubnet"},
+    "Engine" : "mysql",
+    "EngineVersion" : "5.6.37",
+    "MasterUsername" : "csye6225master",
+    "MasterUserPassword" : "csye6225password",
+    "MultiAZ" : "false",
+    "PubliclyAccessible" : "false"
+  }
+}
 }
 }
