@@ -5,7 +5,10 @@ if [ -z "$1" ]; then
 	echo "please provide a stack name"
 else
 	stackname=$1
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4eb7703541c3fdb597f2e4d14fbaf4ba42cf465b
 	EC2_ID=$(aws ec2 describe-instances \
 	    --query "Reservations[].Instances[].InstanceId[]" \
 	    --filters "Name=tag-key,Values=aws:cloudformation:stack-name" "Name=tag-value,Values=$stackname" "Name=instance-state-code,Values=16" \
@@ -27,7 +30,10 @@ else
 		fi;
 	else
 	echo "Cannot find EC2 instance for stack: $stackname"
+<<<<<<< HEAD
 	#echo $terminateOutput
+=======
+>>>>>>> 4eb7703541c3fdb597f2e4d14fbaf4ba42cf465b
 	fi;
 
 fi;
