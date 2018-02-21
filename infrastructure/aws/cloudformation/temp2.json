@@ -1,0 +1,76 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Launch EC2 Instance - CSYE 6225 Spring 2018",
+    "Resources": {
+        "EC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": "ami-66506c1c",
+                "InstanceType": "t2.micro",
+                "SecurityGroupIds": [
+                    "sg-72692301"
+                ],
+                "KeyName": "csye6225",
+                "SubnetId": "subnet-4e1db42a",
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe \n",
+                                "sudo apt-get update \n",
+                                "sudo apt-get install openjdk-8-jdk -y\n",
+                                "sudo apt-get install ruby -y \n",
+                                "sudo apt-get install wget -y \n",
+                                "sudo apt-get install python -y \n",
+                                "sudo apt-get update \n",
+                                "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                                "sudo chmod +x ./install \n",
+                                "sudo ./install auto \n",
+                                "sudo service codedeploy-agent start \n",
+                                "sudo apt-get install tomcat8 -y \n",
+                                "sudo echo \"JAVA_OPTS=\\\"\\${JAVA_OPTS} -Dspring.profiles.active=aws\\\"\" >> /etc/default/tomcat8 \n",
+                                "sudo service tomcat8 restart \n"
+                            ]
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "InstanceId": {
+            "Description": "InstanceId of the newly created EC2 instance",
+            "Value": {
+                "Ref": "EC2Instance"
+            }
+        },
+        "AZ": {
+            "Description": "Availability Zone of the newly created EC2 instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "EC2Instance",
+                    "AvailabilityZone"
+                ]
+            }
+        },
+        "PublicDNS": {
+            "Description": "Public DNSName of the newly created EC2 instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "EC2Instance",
+                    "PublicDnsName"
+                ]
+            }
+        },
+        "PublicIP": {
+            "Description": "Public IP address of the newly created EC2 instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "EC2Instance",
+                    "PublicIp"
+                ]
+            }
+        }
+    }
+}

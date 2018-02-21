@@ -1,0 +1,40 @@
+version: 0.0
+os: linux
+
+files:
+  - source: ./appspec.yml
+    destination: /home/ubuntu
+  - source: ./applicationStop.sh
+    destination: /home/ubuntu
+  - source: ./beforeInstall.sh
+    destination: /home/ubuntu
+  - source: ./afterInstall.sh
+    destination: /home/ubuntu
+  - source: ./applicationStart.sh
+    destination: /home/ubuntu
+  - source: ./validateService.sh
+    destination: /home/ubuntu                
+  - source: ./build/libs/ROOT.war
+    destination: /var/lib/tomcat7/webapps
+
+hooks:
+  ApplicationStop:
+   - location: ./applicationStop.sh
+     timeout: 180
+     runas: ubuntu
+  BeforeInstall:
+   - location: ./beforeInstall.sh
+     timeout: 180
+     runas: ubuntu
+  AfterInstall:
+   - location: ./afterInstall.sh
+     timeout: 180
+     runas: ubuntu
+  ApplicationStart:
+   - location: ./applicationStart.sh
+     timeout: 180
+     runas: ubuntu
+  ValidateService:
+   - location: ./validateService.sh
+     timeout: 180
+     runas: ubuntu
