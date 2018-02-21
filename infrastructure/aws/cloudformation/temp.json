@@ -1,0 +1,229 @@
+{
+  "AWSTemplateFormatVersion" : "2018-02-20",
+  "Description" : "Create IAM Policy and roles for EC2,CodeDeploy and TravisCI",
+  "Resources" : {
+    "EC2ToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "EC2ToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName" : "EC2ToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Action" : [
+                "s3:Get*",
+                "s3:Put*",
+                "s3:List*"
+              ],
+              "Resource" : "*"
+            }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "EC2ToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2018-02-20",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName" : "TravisToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "s3:PutObject"
+                  ],
+                  "Resource": [
+                      "arn:aws:s3:::csye6225-spring2018-aggarwalash-test.me/*"
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2018-02-20",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToCodeDeployInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployPolicy" : {
+      "Type" : "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName" : "TravisToCodeDeployPolicy",
+        "PolicyDocument" : {
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:RegisterApplicationRevision",
+                      "codedeploy:GetApplicationRevision"
+                  ],
+                  "Resource": [
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplication"
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:CreateDeployment",
+                      "codedeploy:GetDeployment"
+                  ],
+                  "Resource": [
+                      "*"
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:GetDeploymentConfig"
+                  ],
+                  "Resource": [
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.OneAtATime",
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.HalfAtATime",
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.AllAtOnce"
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2018-02-20",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    }
+  }
+}
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codedeploy:RegisterApplicationRevision",
+                "codedeploy:GetApplicationRevision"
+            ],
+            "Resource": [
+                "arn:aws:codedeploy:ServerRegionHERE:AccIdHERE:application:NameOfTheCodeDeployApplicationNameHERE"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codedeploy:CreateDeployment",
+                "codedeploy:GetDeployment"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codedeploy:GetDeploymentConfig"
+            ],
+            "Resource": [
+                "arn:aws:codedeploy:ServerRegionHERE:AccIdHERE:deploymentconfig:CodeDeployDefault.OneAtATime",
+                "arn:aws:codedeploy:ServerRegionHERE:AccIdHERE:deploymentconfig:CodeDeployDefault.HalfAtATime",
+                "arn:aws:codedeploy:ServerRegionHERE:AccIdHERE:deploymentconfig:CodeDeployDefault.AllAtOnce"
+            ]
+        }
+    ]
+}

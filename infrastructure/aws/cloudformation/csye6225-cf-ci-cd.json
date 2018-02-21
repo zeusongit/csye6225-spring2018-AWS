@@ -1,0 +1,35 @@
+{
+
+    "Description" : "Creation of Stack for Assignment 3",
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Parameters" : {
+      "stackname" : {
+        "Description" : "Stack Name",
+        "Type" : "String",
+        "Default" : "stack01"
+
+      }
+    },
+
+    "Resources": {
+        "EC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": "ami-66506c1c",
+                "InstanceType": "t2.micro",
+                "DisableApiTermination": "True",
+                "BlockDeviceMappings" : [
+                {
+                "DeviceName" : "/dev/sda1",
+                "Ebs" : {
+                          "DeleteOnTermination": true,
+                          "VolumeSize": 16,
+                          "VolumeType": "gp2"
+                        }
+                }
+                ]
+            }
+        }
+}
+}
