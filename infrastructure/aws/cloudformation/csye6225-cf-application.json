@@ -56,7 +56,6 @@
                     [
                         "#!/bin/bash -xe \n",
                         "sudo apt-get update \n",
-                        "sudo apt-get install openjdk-8-jdk -y\n",
                         "sudo apt-get install wget -y \n",
                         "sudo apt-get install python -y \n",
 
@@ -65,7 +64,7 @@
                         "# get node into yum \n",
                         "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
                         "# install node (and npm) with yum \n",
-                        "sudo yum -y install nodejs \n",
+                        "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
 
                         "sudo apt-get update \n",
@@ -73,7 +72,7 @@
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
-                        ""
+                        "sudo reboot"
                     ]
                 ]
             }
