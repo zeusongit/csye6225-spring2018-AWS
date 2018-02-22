@@ -1,6 +1,13 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Create IAM Policy and roles for EC2,CodeDeploy and TravisCI",
+  "Description" : "Create IAM Policy and roles for EC2,CodeDeploy and TravisCI for Assignment-6",
+  "Parameters" : {
+    "s3domain" : {
+      "Description" : "S3 Bucket Name",
+      "Type" : "String"
+
+    }
+  },
   "Resources" : {
     "EC2ToS3BucketInstanceProfile" : {
       "Type" : "AWS::IAM::InstanceProfile",
@@ -136,7 +143,7 @@
                       "codedeploy:GetApplicationRevision"
                   ],
                   "Resource": [
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplicat"
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplication"
                   ]
               },
               {
@@ -189,15 +196,18 @@
         "Path" : "/"
       }
     },
-    "codedeployS3Bucket": {
-            "Type": "AWS::S3::Bucket"
+    "CodeDeployS3Bucket" : {
+        "Type" : "AWS::S3::Bucket",
+        "Properties" :
+        {
+          "BucketName" : {"Ref" : "s3domain"},
+        }
     },
     "CodeDeployApplication": {
-  "Type": "AWS::CodeDeploy::Application",
-  "Properties": {
-    "ComputePlatform": "Lambda"
-  }
-}
-
+      "Type": "AWS::CodeDeploy::Application",
+      "Properties": {
+        "ComputePlatform": "Lambda"
+      }
+    }
   }
 }
