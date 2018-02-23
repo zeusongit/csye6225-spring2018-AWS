@@ -17,7 +17,8 @@
           {
             "Ref" : "EC2ToS3BucketRole"
           }
-        ]
+        ],
+        "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
       }
     },
     "EC2ToS3BucketPolicy" : {
@@ -199,6 +200,23 @@
         "Path" : "/"
       }
     },
+    "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com" ]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
     "CodeDeployS3Bucket" : {
         "Type" : "AWS::S3::Bucket",
         "Properties" :

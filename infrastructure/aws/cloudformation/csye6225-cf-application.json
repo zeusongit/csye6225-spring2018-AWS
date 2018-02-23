@@ -27,6 +27,10 @@
   "dbSecurityGroupId" : {
     "Description" : "Resource ID for DB Security Group",
     "Type" : "String"
+  },
+  "iaminstance" : {
+    "Description" : "Instance Profile Name for CodeDeploy to S3",
+    "Type" : "String"
   }
 },
 "Resources": {
@@ -40,6 +44,7 @@
         "KeyName": "csye6225",
         "SubnetId": {"Ref": "ec2Subnet"},
         "Tenancy": "default",
+        "IamInstanceProfile": {"Ref":"iaminstance"},
         "BlockDeviceMappings" : [
         {
           "DeviceName" : "/dev/sda1",

@@ -1,4 +1,5 @@
 {
+
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Launch EC2 Instance - CSYE 6225 Spring 2018",
     "Resources": {
