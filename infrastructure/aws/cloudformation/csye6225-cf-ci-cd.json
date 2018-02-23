@@ -89,7 +89,7 @@
                       "s3:PutObject"
                   ],
                   "Resource": [
-                      "arn:aws:s3:::csye6225-spring2018-aggarwalash-test.me/*"
+                    {"Fn::Join" : ["",["arn:aws:s3:::",{"Ref" : "s3domain"},"/*"]] }
                   ]
               }
           ]
