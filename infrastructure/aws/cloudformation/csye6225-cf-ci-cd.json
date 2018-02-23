@@ -89,7 +89,7 @@
                       "s3:PutObject"
                   ],
                   "Resource": [
-                      "arn:aws:s3:::csye6225-spring2018-chaudharis-test.me/*"
+                    {"Fn::Join" : ["",["arn:aws:s3:::",{"Ref" : "s3domain"},"/*"]] }
                   ]
               }
           ]
@@ -146,7 +146,7 @@
                       "codedeploy:GetApplicationRevision"
                   ],
                   "Resource": [
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-chaudharis:application:csye6225CodeDeployApplication"
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplication"
                   ]
               },
               {
@@ -165,9 +165,9 @@
                       "codedeploy:GetDeploymentConfig"
                   ],
                   "Resource": [
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-chaudharis:deploymentconfig:CodeDeployDefault.OneAtATime",
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-chaudharis:deploymentconfig:CodeDeployDefault.HalfAtATime",
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-chaudharis:deploymentconfig:CodeDeployDefault.AllAtOnce"
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.OneAtATime",
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.HalfAtATime",
+                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.AllAtOnce"
                   ]
               }
           ]

@@ -19,7 +19,7 @@ sgdb=$(aws ec2 describe-security-groups --filters "Name=group-name,Values=$netst
 echo "DB SG: $sgdb"
 #domain=$(aws route53 list-hosted-zones --query HostedZones[0].Name --output text)
 #s3domain="web-app.$s3domain"
-s3domain="web-app.csye6225-spring2018-chaudhars.me"
+s3domain="web-app.csye6225-spring2018-aggarwalash.me"
 echo "S3 Domain Name: $s3domain"
 
 createOutput=$(aws cloudformation create-stack --stack-name $stackname --template-body file://csye6225-cf-application.json --parameters ParameterKey=stackname,ParameterValue=$stackname ParameterKey=dbsubnet,ParameterValue=$dbsubnet ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=ec2Subnet,ParameterValue=$subnet1 ParameterKey=ec2SecurityGroup,ParameterValue=$sgec2 ParameterKey=dbSecurityGroupId,ParameterValue=$sgdb)
