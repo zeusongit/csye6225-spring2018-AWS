@@ -21,9 +21,9 @@
       }
     },
     "EC2ToS3BucketPolicy" : {
-      "Type" : "AWS::IAM::Policy",
+      "Type" : "AWS::IAM::ManagedPolicy",
       "Properties" : {
-        "PolicyName" : "EC2ToS3BucketPolicy",
+        "ManagedPolicyName" : "EC2ToS3BucketPolicy",
         "PolicyDocument" : {
           "Statement" : [
             {
@@ -76,9 +76,9 @@
       }
     },
     "TravisToS3BucketPolicy" : {
-      "Type" : "AWS::IAM::Policy",
+      "Type" : "AWS::IAM::ManagedPolicy",
       "Properties" : {
-        "PolicyName" : "TravisToS3BucketPolicy",
+        "ManagedPolicyName" : "TravisToS3BucketPolicy",
         "PolicyDocument" : {
           "Statement": [
               {
@@ -131,9 +131,9 @@
       }
     },
     "TravisToCodeDeployPolicy" : {
-      "Type" : "AWS::IAM::Policy",
+      "Type" : "AWS::IAM::ManagedPolicy",
       "Properties" : {
-        "PolicyName" : "TravisToCodeDeployPolicy",
+        "ManagedPolicyName" : "TravisToCodeDeployPolicy",
         "PolicyDocument" : {
           "Statement": [
               {

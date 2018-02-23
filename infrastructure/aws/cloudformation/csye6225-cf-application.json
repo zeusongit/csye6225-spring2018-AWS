@@ -59,11 +59,8 @@
                         "sudo apt-get install wget -y \n",
                         "sudo apt-get install python -y \n",
 
-                        "# output user data logs into a separate place for debugging \n",
                         "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1 \n",
-                        "# get node into yum \n",
                         "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
-                        "# install node (and npm) with yum \n",
                         "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
 
@@ -131,46 +128,6 @@
                 "AvailabilityZone"
             ]
         }
-    },
-    "PublicDNS": {
-        "Description": "Public DNSName of the newly created EC2 instance",
-        "Value": {
-            "Fn::GetAtt": [
-                "EC2Instance",
-                "PublicDnsName"
-            ]
-        }
-    },
-    "PublicIP": {
-        "Description": "Public IP address of the newly created EC2 instance",
-        "Value": {
-            "Fn::GetAtt": [
-                "EC2Instance",
-                "PublicIp"
-            ]
-        }
-    },
-    "EC2" : {
-     "Description" : "EC2 IP address",
-     "Value" : {
-       "Fn::Join" : [
-         "",
-         [
-           "ssh ec2-user@",
-           {
-             "Fn::GetAtt" : [
-               "Test",
-               "PublicIp"
-             ]
-           },
-           " -i ",
-           {
-             "Ref" : "KeyName"
-           },
-           ".pem"
-         ]
-       ]
-     }
-   }
+    }
   }
 }
