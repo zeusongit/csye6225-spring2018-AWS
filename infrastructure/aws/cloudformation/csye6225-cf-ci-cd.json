@@ -25,6 +25,7 @@
       "Properties" : {
         "ManagedPolicyName" : "EC2ToS3BucketPolicy",
         "PolicyDocument" : {
+          "Version" : "2012-10-17",
           "Statement" : [
             {
               "Effect" : "Allow",
@@ -80,6 +81,7 @@
       "Properties" : {
         "ManagedPolicyName" : "TravisToS3BucketPolicy",
         "PolicyDocument" : {
+          "Version" : "2012-10-17",
           "Statement": [
               {
                   "Effect": "Allow",
@@ -135,6 +137,7 @@
       "Properties" : {
         "ManagedPolicyName" : "TravisToCodeDeployPolicy",
         "PolicyDocument" : {
+          "Version" : "2012-10-17",
           "Statement": [
               {
                   "Effect": "Allow",
