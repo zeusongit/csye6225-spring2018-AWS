@@ -7,9 +7,10 @@ script:
   - pwd
   - npm install
   - npm test
+  - cd nodeapp-express
+  - npm install
   - cd ..
   - ls -lrt
-  - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null 2>&1
   - ls -lrt
 
 after_success:
