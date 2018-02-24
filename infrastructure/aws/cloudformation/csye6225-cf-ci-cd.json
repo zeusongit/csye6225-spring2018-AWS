@@ -16,6 +16,10 @@
       "Description" : "Deployment Group Name",
       "Type" : "String"
 
+    },
+    "accid" : {
+      "Description" : "Account Id",
+      "Type" : "String"
     }
   },
   "Resources" : {
@@ -157,7 +161,7 @@
                       "codedeploy:GetApplicationRevision"
                   ],
                   "Resource": [
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplication"
+                       {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":application:csye6225CodeDeployApplication"]]}
                   ]
               },
               {
@@ -176,9 +180,9 @@
                       "codedeploy:GetDeploymentConfig"
                   ],
                   "Resource": [
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.OneAtATime",
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.HalfAtATime",
-                      "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.AllAtOnce"
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.OneAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.HalfAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.AllAtOnce"]]}
                   ]
               }
           ]
