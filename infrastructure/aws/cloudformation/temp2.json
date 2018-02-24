@@ -1,4 +1,8 @@
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Launch EC2 Instance - CSYE 6225 Spring 2018",
     "Resources": {
@@ -17,6 +21,7 @@
                         "Fn::Join": [
                             "",
                             [
+<<<<<<< HEAD
                                 "#!/bin/bash -xe \n",
                                 "sudo apt-get update \n",
                                 "sudo apt-get install openjdk-8-jdk -y\n",
@@ -31,6 +36,26 @@
                                 "sudo apt-get install tomcat8 -y \n",
                                 "sudo echo \"JAVA_OPTS=\\\"\\${JAVA_OPTS} -Dspring.profiles.active=aws\\\"\" >> /etc/default/tomcat8 \n",
                                 "sudo service tomcat8 restart \n"
+=======
+                              "#!/bin/bash -xe \n",
+                              "sudo apt-get update \n",
+                              "sudo apt-get install openjdk-8-jdk -y\n",
+                              "sudo apt-get install ruby -y \n",
+                              "sudo apt-get install wget -y \n",
+                              "sudo apt-get install python -y \n",
+
+                              "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1 \n",
+                              "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
+                              "sudo apt-get install -y nodejs \n",
+                              "sudo apt-get install -y build-essential \n",
+
+                              "sudo apt-get update \n",
+                              "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                              "sudo chmod +x ./install \n",
+                              "sudo ./install auto \n",
+                              "sudo service codedeploy-agent start \n",
+                              "sudo reboot"
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                             ]
                         ]
                     }

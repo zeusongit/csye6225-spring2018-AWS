@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
 "Description" : "Creation of Stack for Assignment 5",
+=======
+"Description" : "Creation of Stack for Assignment 6",
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
 "AWSTemplateFormatVersion" : "2010-09-09",
 
 "Parameters" : {
@@ -27,6 +31,13 @@
   "dbSecurityGroupId" : {
     "Description" : "Resource ID for DB Security Group",
     "Type" : "String"
+<<<<<<< HEAD
+=======
+  },
+  "iaminstance" : {
+    "Description" : "Instance Profile Name for CodeDeploy to S3",
+    "Type" : "String"
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   }
 },
 "Resources": {
@@ -40,6 +51,11 @@
         "KeyName": "csye6225",
         "SubnetId": {"Ref": "ec2Subnet"},
         "Tenancy": "default",
+<<<<<<< HEAD
+=======
+        "IamInstanceProfile": {"Ref":"iaminstance"},
+        "Tags": [{"Key" : "Name", "Value" : "MyEC2Instance"}],
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
         "BlockDeviceMappings" : [
         {
           "DeviceName" : "/dev/sda1",
@@ -56,6 +72,11 @@
                     [
                         "#!/bin/bash -xe \n",
                         "sudo apt-get update \n",
+<<<<<<< HEAD
+=======
+                        "sudo apt-get install openjdk-8-jdk -y\n",
+                        "sudo apt-get install ruby -y \n",
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                         "sudo apt-get install wget -y \n",
                         "sudo apt-get install python -y \n",
 
@@ -69,7 +90,11 @@
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
+<<<<<<< HEAD
                         "sudo reboot"
+=======
+                        "sudo service codedeploy-agent status \n",
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                     ]
                 ]
             }

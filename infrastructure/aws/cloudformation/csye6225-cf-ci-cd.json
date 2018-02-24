@@ -6,6 +6,23 @@
       "Description" : "S3 Bucket Name",
       "Type" : "String"
 
+<<<<<<< HEAD
+=======
+    },
+    "appname" : {
+      "Description" : "Application Name",
+      "Type" : "String"
+
+    },
+    "depname" : {
+      "Description" : "Deployment Group Name",
+      "Type" : "String"
+
+    },
+    "accid" : {
+      "Description" : "Account Id",
+      "Type" : "String"
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     }
   },
   "Resources" : {
@@ -17,7 +34,12 @@
           {
             "Ref" : "EC2ToS3BucketRole"
           }
+<<<<<<< HEAD
         ]
+=======
+        ],
+        "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
       }
     },
     "EC2ToS3BucketPolicy" : {
@@ -146,7 +168,11 @@
                       "codedeploy:GetApplicationRevision"
                   ],
                   "Resource": [
+<<<<<<< HEAD
                       "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:application:csye6225CodeDeployApplication"
+=======
+                       {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":application:csye6225CodeDeployApplication"]]}
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                   ]
               },
               {
@@ -165,9 +191,15 @@
                       "codedeploy:GetDeploymentConfig"
                   ],
                   "Resource": [
+<<<<<<< HEAD
                       "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.OneAtATime",
                       "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.HalfAtATime",
                       "arn:aws:codedeploy:us-east-1:csye6225-spring2018-aggarwalash:deploymentconfig:CodeDeployDefault.AllAtOnce"
+=======
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.OneAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.HalfAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.AllAtOnce"]]}
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                   ]
               }
           ]
@@ -199,6 +231,26 @@
         "Path" : "/"
       }
     },
+<<<<<<< HEAD
+=======
+    "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     "CodeDeployS3Bucket" : {
         "Type" : "AWS::S3::Bucket",
         "Properties" :
@@ -209,8 +261,36 @@
     "CodeDeployApplication": {
       "Type": "AWS::CodeDeploy::Application",
       "Properties": {
+<<<<<<< HEAD
         "ComputePlatform": "Lambda"
       }
     }
   }
+=======
+        "ApplicationName" : {"Ref" : "appname"}
+      }
+    },
+     "CodeDeployDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"},
+        "Ec2TagFilters" : [{
+          "Key" : "Name",
+          "Value" : "MyEC2Instance",
+          "Type" : "KEY_AND_VALUE"
+        }],
+        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
+        "DeploymentGroupName" : {"Ref" : "depname"}
+      }
+    }
+},
+    "Outputs" : {
+      "CodeDeployServiceRoleArn" : {
+        "Description" : "Code Deploy Arn",
+        "Value" : {
+          "Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]}
+        }
+      }
+
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
 }

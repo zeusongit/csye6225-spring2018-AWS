@@ -21,7 +21,7 @@
           "Properties" : {
             "CidrBlock" : "10.0.0.0/16",
             "EnableDnsSupport" : true,
-            "EnableDnsHostnames" : false,
+            "EnableDnsHostnames" : true,
             "InstanceTenancy" : "default",
             "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-vpc"]] }}]
           }
@@ -67,7 +67,9 @@
           "Properties" : {
             "VpcId" : { "Ref" : "vpc1" },
             "CidrBlock" : "10.0.0.0/24",
-            "AvailabilityZone" : "us-east-1a"
+            "AvailabilityZone" : "us-east-1a",
+            "MapPublicIpOnLaunch" : true,
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-ec2-subnet"]] }}]
           }
          },
         "mySubnetRouteTableAssociation1" : {

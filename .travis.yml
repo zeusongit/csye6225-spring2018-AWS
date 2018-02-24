@@ -7,15 +7,22 @@ script:
   - pwd
   - npm install
   - npm test
+<<<<<<< HEAD
   - cd ..
   - ls -lrt
   - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null 2>&1
+=======
+  - cd nodeapp-express
+  - npm install
+  - cd ../..
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   - ls -lrt
 
 after_success:
   - pwd
   - ls -ltr
   - mkdir codedeploy
+<<<<<<< HEAD
   - cp infrastructure/aws/codedeploy/*.sh .
   - cp infrastructure/aws/codedeploy/*.yml .
   - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 *.sh *.yml >/dev/null 2>&1
@@ -24,6 +31,17 @@ after_success:
   - ls -al
   - pwd
   - cd codedeploy
+=======
+  - cp -r csye6225-spring2018 ./codedeploy/
+  - cd csye6225-spring2018
+  - zip -r ./codedeploy/csye6225-spring2018.zip ./* >/dev/null
+  - cd ..
+  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy/
+  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy/
+  - cd codedeploy
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip csye6225-spring *.sh *.yml >/dev/null
+  - rm -rf csye6225-spring2018 *.yml *.sh csye6225-spring2018.zip
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   - ls -al
   - pwd
   - cd ..
@@ -38,13 +56,21 @@ deploy:
     skip_cleanup: true
     access_key_id: $access_key_id
     secret_access_key: $secret_access_key
+<<<<<<< HEAD
+=======
+    wait-until-deployed: true
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     on:
       branch: Assignment-6
 
   - provider: codedeploy
     access_key_id: $access_key_id
     bucket: $s3_bucket
+<<<<<<< HEAD
     key: csye6225-web-app-$TRAVIS_JOB_NUMBER.zip
+=======
+    key: csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     bundle_type: zip
     application: $application
     deployment_group: $deployment_group
@@ -62,4 +88,8 @@ cache:
 notifications:
   email:
     on_success: always
+<<<<<<< HEAD
     on_failure: always
+=======
+    on_failure: always
+>>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
