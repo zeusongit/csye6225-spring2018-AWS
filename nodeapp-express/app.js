@@ -48,6 +48,7 @@ if(process.env.NODE_ENV==="local")
 }
 else if(process.env.NODE_ENV==="dev")
 {
+  console.log("hi");
   storage=multerS3({
     s3: s3,
     bucket: 'dummy-bucket-152',//bucketname
@@ -293,6 +294,7 @@ app.post('/updateprofile',(req,res)=>{
     else{
         upload(req,res,(err)=>{
         if(err){
+          console.log(err);
           req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
           res.redirect('/updateprofile');
           console.log("error in upload");

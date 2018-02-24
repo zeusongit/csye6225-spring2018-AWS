@@ -1,88 +1,108 @@
 {
+"Description" : "Creation of Stack for Assignment 5",
+"AWSTemplateFormatVersion" : "2010-09-09",
 
-    "Description" : "Creation of Stack for Assignment 3",
-    "AWSTemplateFormatVersion" : "2010-09-09",
-
-    "Parameters" : {
-      "stackname" : {
-        "Description" : "Stack Name",
-        "Type" : "String",
-        "Default" : "stack01"
-
-      },
-      "dbsubnet" : {
-        "Description" : "DB Subnet Group name",
-        "Type" : "String"
-
-      },
-      "s3domain" : {
-        "Description" : "DB Subnet Group name",
-        "Type" : "String"
-
+"Parameters" : {
+  "stackname" : {
+    "Description" : "Stack Name",
+    "Type" : "String",
+    "Default" : "stack01"
+  },
+  "dbsubnet" : {
+    "Description" : "DB Subnet Group name",
+    "Type" : "String"
+  },
+  "s3domain" : {
+    "Description" : "S3 name",
+    "Type" : "String"
+  },
+  "ec2Subnet" : {
+    "Description" : "Subnet ID for EC2",
+    "Type" : "String"
+  },
+  "ec2SecurityGroup" : {
+    "Description" : "Resource ID for EC2 Security Group",
+    "Type" : "String"
+  },
+  "dbSecurityGroupId" : {
+    "Description" : "Resource ID for DB Security Group",
+    "Type" : "String"
+  }
+},
+"Resources": {
+  "EC2Instance": {
+    "Type": "AWS::EC2::Instance",
+    "Properties": {
+        "ImageId": "ami-66506c1c",
+        "InstanceType": "t2.micro",
+        "DisableApiTermination": "False",
+        "SecurityGroupIds": [{"Ref" : "ec2SecurityGroup"}],
+        "KeyName": "csye6225",
+        "SubnetId": {"Ref": "ec2Subnet"},
+        "Tenancy": "default",
+        "BlockDeviceMappings" : [
+        {
+          "DeviceName" : "/dev/sda1",
+          "Ebs" : {
+                    "DeleteOnTermination": true,
+                    "VolumeSize": 16,
+                    "VolumeType": "gp2"
+                  }
+        }]
       }
-
-
-    },
-
-    "Resources": {
-        "EC2Instance": {
-            "Type": "AWS::EC2::Instance",
-            "Properties": {
-                "ImageId": "ami-66506c1c",
-                "InstanceType": "t2.micro",
-                "DisableApiTermination": "False",
-                "BlockDeviceMappings" : [
-                {
-                "DeviceName" : "/dev/sda1",
-                "Ebs" : {
-                          "DeleteOnTermination": true,
-                          "VolumeSize": 16,
-                          "VolumeType": "gp2"
-                        }
-                }
-                ]
-            }
-        },
-
-
-
-        "S3" : {
+  },
+  "S3" : {
   "Type" : "AWS::S3::Bucket",
   "Properties" : {
     "BucketName" : {"Ref" : "s3domain"},
   }
-},
-
-"DynamoDBTable": {
+  },
+  "DynamoDBTable": {
   "Type" : "AWS::DynamoDB::Table",
   "Properties" : {
     "AttributeDefinitions" : [ {"AttributeName" : "id", "AttributeType" : "S"}],
     "KeySchema" : [ {"AttributeName" : "id", "KeyType" : "HASH"} ],
     "ProvisionedThroughput" : {
-   "ReadCapacityUnits" : 20000,
-   "WriteCapacityUnits" : 20000
-}
+      "ReadCapacityUnits" : 5,
+      "WriteCapacityUnits" : 5
+    },
+    "TableName": {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-dynamodb-table"]] }
+  }
+  },
+  "RDSDB" :   {
+    "Type" : "AWS::RDS::DBInstance",
+    "Properties" :
+      {
+        "AllocatedStorage" : "5",
+        "DBInstanceClass" : "db.t2.medium",
+        "DBInstanceIdentifier" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-RDS-DB"]] },
+        "DBName" : "csye6225",
+        "DBSubnetGroupName" :{"Ref" : "dbsubnet"},
+        "Engine" : "mysql",
+        "EngineVersion" : "5.6.37",
+        "MasterUsername" : "csye6225master",
+        "MasterUserPassword" : "csye6225password",
+        "MultiAZ" : "false",
+        "PubliclyAccessible" : "false",
+        "VPCSecurityGroups": [{"Ref": "dbSecurityGroupId"}]
+      }
   }
 },
-
-
-
-    "RDSDB" :   {
-  "Type" : "AWS::RDS::DBInstance",
-  "Properties" :
-  {
-    "AllocatedStorage" : "5",
-    "DBInstanceClass" : "db.t2.medium",
-    "DBInstanceIdentifier" : "csye6225-spring2018",
-    "DBName" : "csye6225",
-    "DBSubnetGroupName" :{"Ref" : "dbsubnet"},
-    "Engine" : "mysql",
-    "EngineVersion" : "5.6.37",
-    "MasterUsername" : "csye6225master",
-    "MasterUserPassword" : "csye6225password",
-    "MultiAZ" : "false",
-    "PubliclyAccessible" : "false"
+"Outputs": {
+    "InstanceId": {
+        "Description": "InstanceId of the newly created EC2 instance",
+        "Value": {
+            "Ref": "EC2Instance"
+        }
+    },
+    "AZ": {
+        "Description": "Availability Zone of the newly created EC2 instance",
+        "Value": {
+            "Fn::GetAtt": [
+                "EC2Instance",
+                "AvailabilityZone"
+            ]
+        }
+    }
   }
-}
-}
 }
