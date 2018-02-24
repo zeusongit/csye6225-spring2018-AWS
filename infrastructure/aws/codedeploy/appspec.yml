@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: csye6225-spring2018
-    destination: /var/webapp
+    destination: /var/webapp/
 
 hooks:
   AfterInstall:
