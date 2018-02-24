@@ -21,7 +21,7 @@ after_success:
   - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy/
   - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy/
   - cd codedeploy
-  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip *.sh *.yml >/dev/null
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip csye6225-spring *.sh *.yml >/dev/null
   - rm -rf csye6225-spring2018 *.yml *.sh
   - ls -al
   - pwd
