@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: ./csye6225-spring2018
-    destination: /opt
+    destination: /var/webapp
 
 hooks:
   ApplicationStop:

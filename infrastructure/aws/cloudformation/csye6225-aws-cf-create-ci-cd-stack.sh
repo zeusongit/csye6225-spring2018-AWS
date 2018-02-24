@@ -11,8 +11,8 @@ appname="csye6225CodeDeployApplication"
 echo $appname
 depname="csye6225CodeDeployApplication-depgroup"
 echo $depname
-accid=${trimdomain::-3}
-echo $accid
+accid=929262208135
+echo "AccountId: $accid"
 
 
 createOutput=$(aws cloudformation create-stack --stack-name $stackname --capabilities CAPABILITY_NAMED_IAM --template-body file://csye6225-cf-ci-cd.json --parameters ParameterKey=s3domain,ParameterValue=$s3domain  ParameterKey=appname,ParameterValue=$appname ParameterKey=depname,ParameterValue=$depname ParameterKey=accid,ParameterValue=$accid)

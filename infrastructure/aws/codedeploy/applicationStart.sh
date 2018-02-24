@@ -1,2 +1,3 @@
 #!/bin/bash
-sudo service tomcat7 start
+cd /var/webapp/csye6225-spring2018/nodeapp-express
+NODE_ENV=dev node app.js
