@@ -5,6 +5,6 @@ pwd
 ls -lrt
 cd /var/webapp/csye6225-sprin2018/nodeapp-express
 echo "PWD AND FILES"
-echo ${pwd}
+pwd
 ls -lrt
 NODE_ENV=dev node app.js
