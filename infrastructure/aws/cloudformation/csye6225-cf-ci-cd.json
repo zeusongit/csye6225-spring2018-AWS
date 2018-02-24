@@ -6,6 +6,16 @@
       "Description" : "S3 Bucket Name",
       "Type" : "String"
 
+    },
+    "appname" : {
+      "Description" : "Application Name",
+      "Type" : "String"
+
+    },
+    "depname" : {
+      "Description" : "Deployment Group Name",
+      "Type" : "String"
+
     }
   },
   "Resources" : {
@@ -209,7 +219,7 @@
                 "Statement": [ {
                 "Effect": "Allow",
                 "Principal": {
-                  "Service": [ "ec2.amazonaws.com" ]
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
                   },
                 "Action": [ "sts:AssumeRole" ]
                 } ]
@@ -227,8 +237,29 @@
     "CodeDeployApplication": {
       "Type": "AWS::CodeDeploy::Application",
       "Properties": {
-        "ComputePlatform": "Lambda"
+        "ApplicationName" : {"Ref" : "appname"}
+      }
+    },
+     "CodeDeployDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"},
+        "Ec2TagFilters" : [{
+          "Key" : "Name",
+          "Value" : "MyEC2Instance",
+          "Type" : "KEY_AND_VALUE"
+        }],
+        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
+        "DeploymentGroupName" : {"Ref" : "depname"}
       }
     }
-  }
+},
+    "Outputs" : {
+      "CodeDeployServiceRoleArn" : {
+        "Description" : "Code Deploy Arn",
+        "Value" : {
+          "Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]}
+        }
+      }
+
 }

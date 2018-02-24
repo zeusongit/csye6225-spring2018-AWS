@@ -44,7 +44,7 @@ deploy:
   - provider: codedeploy
     access_key_id: $access_key_id
     bucket: $s3_bucket
-    key: csye6225-web-app-$TRAVIS_JOB_NUMBER.zip
+    key: csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip
     bundle_type: zip
     application: $application
     deployment_group: $deployment_group
