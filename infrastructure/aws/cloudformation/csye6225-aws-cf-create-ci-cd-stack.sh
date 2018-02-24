@@ -11,7 +11,7 @@ appname="csye6225CodeDeployApplication"
 echo $appname
 depname="csye6225CodeDeployApplication-depgroup"
 echo $depname
-accid=929262208135
+accid=$(aws sts get-caller-identity --output text --query 'Account')
 echo "AccountId: $accid"
 
 
