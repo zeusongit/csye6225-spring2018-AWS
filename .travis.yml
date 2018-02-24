@@ -17,7 +17,9 @@ after_success:
   - ls -ltr
   - mkdir codedeploy
   - cp -r csye6225-spring2018 ./codedeploy/
-  - zip -r ./codedeploy/csye6225-spring2018.zip csye6225-spring2018/* >/dev/null
+  - cd csye6225-spring2018
+  - zip -r ./codedeploy/csye6225-spring2018.zip ./* >/dev/null
+  - cd ..
   - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy/
   - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy/
   - cd codedeploy
