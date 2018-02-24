@@ -6,14 +6,6 @@ files:
     destination: /var/webapp
 
 hooks:
-  ApplicationStop:
-   - location: ./applicationStop.sh
-     timeout: 180
-     runas: ubuntu
-  BeforeInstall:
-   - location: ./beforeInstall.sh
-     timeout: 180
-     runas: ubuntu
   AfterInstall:
    - location: ./afterInstall.sh
      timeout: 180
