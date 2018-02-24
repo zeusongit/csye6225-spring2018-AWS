@@ -11,21 +11,17 @@ script:
   - npm install
   - cd ../..
   - ls -lrt
-  - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null 2>&1
-  - ls -lrt
 
 after_success:
   - pwd
   - ls -ltr
   - mkdir codedeploy
-  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy
-  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy
-  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 *.sh *.yml
-  - ls -al
-  - mv csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip ./codedeploy/
-  - ls -al
-  - pwd
+  - cp -r csye6225-spring2018 ./codedeploy/
+  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy/
+  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy/
   - cd codedeploy
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 *.sh *.yml
+  - rm -rf csye6225-spring2018 *.yml *.sh
   - ls -al
   - pwd
   - cd ..
