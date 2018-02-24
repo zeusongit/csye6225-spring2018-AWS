@@ -77,7 +77,7 @@
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
-                        "sudo service codedeploy-agent status \n",
+                        "sudo service codedeploy-agent status"
                     ]
                 ]
             }
