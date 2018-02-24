@@ -4,5 +4,7 @@
 echo "#CSYE6225: doing after install"
 cd /var/webapp/csye6225-spring2018
 sudo unzip csye6225-spring2018.zip -d ./
+
 sudo cp -a csye6225-spring/. ./
+sudo chmod 777 *
 sudo rm -rf csye6225-spring2018.zip csye6225-spring2018
