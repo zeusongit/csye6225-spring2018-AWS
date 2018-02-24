@@ -45,6 +45,7 @@
         "SubnetId": {"Ref": "ec2Subnet"},
         "Tenancy": "default",
         "IamInstanceProfile": {"Ref":"iaminstance"},
+        "Tags": [{"Key" : "Name", "Value" : "MyEC2Instance"}],
         "BlockDeviceMappings" : [
         {
           "DeviceName" : "/dev/sda1",
