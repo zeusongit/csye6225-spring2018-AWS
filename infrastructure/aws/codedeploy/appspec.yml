@@ -2,8 +2,8 @@ version: 0.0
 os: linux
 
 files:
-  - source: /
-    destination: /var/webapp/
+  - source: csye6225-spring2018.zip
+    destination: /var/webapp/csye6225-spring2018
 hooks:
   AfterInstall:
    - location: ./afterInstall.sh
