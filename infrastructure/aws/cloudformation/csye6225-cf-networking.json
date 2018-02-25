@@ -1,6 +1,6 @@
 {
 
-    "Description" : "Creation of Stack for Assignment 3",
+    "Description" : "Creation of Stack for Assignment 5",
     "AWSTemplateFormatVersion" : "2010-09-09",
 
     "Parameters" : {
@@ -21,7 +21,7 @@
           "Properties" : {
             "CidrBlock" : "10.0.0.0/16",
             "EnableDnsSupport" : true,
-            "EnableDnsHostnames" : false,
+            "EnableDnsHostnames" : true,
             "InstanceTenancy" : "default",
             "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-vpc"]] }}]
           }
@@ -67,7 +67,9 @@
           "Properties" : {
             "VpcId" : { "Ref" : "vpc1" },
             "CidrBlock" : "10.0.0.0/24",
-            "AvailabilityZone" : "us-east-1a"
+            "AvailabilityZone" : "us-east-1a",
+            "MapPublicIpOnLaunch" : true,
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-ec2-subnet"]] }}]
           }
          },
         "mySubnetRouteTableAssociation1" : {
@@ -136,7 +138,7 @@
         "WebServerSecurityGroup": {
           "Type": "AWS::EC2::SecurityGroup",
           "Properties": {
-          "GroupName" : "csye6225-webapp",
+          "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-webapp-secuitygroup"]] },
           "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443",
           "VpcId": { "Ref" : "vpc1" },
           "SecurityGroupIngress": [
@@ -168,7 +170,7 @@
   "DBEC2SecurityGroup": {
   "Type" : "AWS::EC2::SecurityGroup",
   "Properties" : {
-     "GroupName" : "csye6225-rds",
+     "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-db-secuitygroup"]] },
      "GroupDescription" : "allows ingress traffic only from Web App",
      "SecurityGroupIngress" : [
           {
@@ -182,9 +184,6 @@
      "VpcId" : { "Ref" : "vpc1" }
   }
 }
-
-
-
 
  },
 
@@ -201,7 +200,30 @@
 
             }
 
-        }
+        },
+        "ec2Subnet" : {
+
+            "Description" : "The resource id of the subnet for EC2",
+
+            "Value" : {
+
+                "Ref" : "mySubnet1"
+
+            }
+
+        },
+        "ec2SecurityGroup" : {
+
+
+            "Description" : "The resource id of the Security Group for EC2",
+
+            "Value" : {
+
+                "Ref" : "WebServerSecurityGroup"
+
+            }
+
+        },
 
     }
 

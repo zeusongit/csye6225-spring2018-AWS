@@ -1,0 +1,269 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Create IAM Policy and roles for EC2,CodeDeploy and TravisCI for Assignment-6",
+  "Parameters" : {
+    "s3domain" : {
+      "Description" : "S3 Bucket Name",
+      "Type" : "String"
+
+    },
+    "appname" : {
+      "Description" : "Application Name",
+      "Type" : "String"
+
+    },
+    "depname" : {
+      "Description" : "Deployment Group Name",
+      "Type" : "String"
+
+    },
+    "accid" : {
+      "Description" : "Account Id",
+      "Type" : "String"
+    }
+  },
+  "Resources" : {
+    "EC2ToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ],
+        "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
+      }
+    },
+    "EC2ToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "EC2ToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Action" : [
+                "s3:Get*",
+                "s3:Put*",
+                "s3:List*"
+              ],
+              "Resource" : "*"
+            }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "EC2ToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "TravisToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "s3:PutObject"
+                  ],
+                  "Resource": [
+                    {"Fn::Join" : ["",["arn:aws:s3:::",{"Ref" : "s3domain"},"/*"]] }
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToCodeDeployInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "TravisToCodeDeployPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:RegisterApplicationRevision",
+                      "codedeploy:GetApplicationRevision"
+                  ],
+                  "Resource": [
+                       {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":application:csye6225CodeDeployApplication"]]}
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:CreateDeployment",
+                      "codedeploy:GetDeployment"
+                  ],
+                  "Resource": [
+                      "*"
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:GetDeploymentConfig"
+                  ],
+                  "Resource": [
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.OneAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.HalfAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.AllAtOnce"]]}
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
+    "CodeDeployS3Bucket" : {
+        "Type" : "AWS::S3::Bucket",
+        "Properties" :
+        {
+          "BucketName" : {"Ref" : "s3domain"},
+        }
+    },
+    "CodeDeployApplication": {
+      "Type": "AWS::CodeDeploy::Application",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"}
+      }
+    },
+     "CodeDeployDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName" : {"Ref" : "appname"},
+        "Ec2TagFilters" : [{
+          "Key" : "Name",
+          "Value" : "MyEC2Instance",
+          "Type" : "KEY_AND_VALUE"
+        }],
+        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
+        "DeploymentGroupName" : {"Ref" : "depname"}
+      }
+    }
+},
+    "Outputs" : {
+      "CodeDeployServiceRoleArn" : {
+        "Description" : "Code Deploy Arn",
+        "Value" : {
+          "Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]}
+        }
+      }
+
+}
