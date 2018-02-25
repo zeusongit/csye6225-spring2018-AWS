@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 
 files:
-  - source: ./csye6225-spring2018.zip
+  - source: ./webapp/csye6225-spring2018.zip
     destination: /var/webapp/
 hooks:
   BeforeInstall:
