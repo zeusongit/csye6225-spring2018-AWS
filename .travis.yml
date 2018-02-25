@@ -19,7 +19,7 @@ after_success:
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh .
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml .
   - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null
-  - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip webapp/csye6225-spring2018.zip *.sh *.yml >/dev/null
+  - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip *.sh *.yml >/dev/null
   - ls -al
   - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy_artifact/
   - rm -rf csye6225-spring2018 *.yml *.sh csye6225-spring2018.zip
