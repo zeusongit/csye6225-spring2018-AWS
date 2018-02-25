@@ -15,15 +15,15 @@ script:
 after_success:
   - pwd
   - ls -ltr
-  - mkdir codedeploy
+  - mkdir codedeploy_artifact
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh .
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml .
   - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 *.sh *.yml >/dev/null
   - ls -al
-  - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy/
+  - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy_artifact/
   - ls -al
   - pwd
-  - cd codedeploy
+  - cd codedeploy_artifact
   - ls -al
   - pwd
   - cd ..
@@ -32,7 +32,7 @@ after_success:
 
 deploy:
   - provider: s3
-    local_dir: codedeploy
+    local_dir: codedeploy_artifact
     bucket: $s3_bucket
     region: us-east-1
     skip_cleanup: true
