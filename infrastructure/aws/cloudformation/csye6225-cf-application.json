@@ -69,9 +69,9 @@
                     "BUCKET=", {"Ref" : "s3domain"}, "\n",
                     "DB_HOST=", {"Fn::GetAtt": ["RDSDB","Endpoint.Address"]}, "\n",
                     "DB_PORT=", {"Fn::GetAtt": ["RDSDB","Endpoint.Port"]}, "\n",
-                    "DB_USER=", {"Fn::GetAtt": ["RDSDB","MasterUsername"]}, "\n",
-                    "DB_PASS=", {"Fn::GetAtt": ["RDSDB","MasterUserPassword"]}, "\n",
-                    "DB_NAME=", {"Fn::GetAtt": ["RDSDB","DBName"]}, "\n"
+                    "DB_USER=csye6225master\n",
+                    "DB_PASS=csye6225password\n",
+                    "DB_NAME=csye6225\n"
                     ]]},
                   "mode"  : "000644",
                   "owner" : "ubuntu"
@@ -121,7 +121,7 @@
                         "--stack ", { "Ref" : "AWS::StackName" },
                         "--resource EC2Instance ",
                         "--configsets execOrder ",
-                        "--region ", { "Ref" : "AWS::Region" }, "\n"
+                        "--region ", { "Ref" : "AWS::Region" }, "\n",
 
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",

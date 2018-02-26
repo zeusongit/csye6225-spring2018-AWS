@@ -20,9 +20,9 @@ db.connect((err)=>{
   if(err){
     throw err;
   }
-  db.query('CREATE DATABASE IF NOT EXISTS mydb', function (err) {// create db if not exist
+  db.query('CREATE DATABASE IF NOT EXISTS '+process.env.DB_NAME, function (err) {// create db if not exist
     if (err) throw err;
-    db.query('USE mydb', function (err) {
+    db.query('USE '+process.env.DB_NAME, function (err) {
       if (err) throw err;
       db.query('create table IF NOT EXISTS user('
         + 'user_id INT NOT NULL AUTO_INCREMENT,'
