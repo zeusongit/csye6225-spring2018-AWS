@@ -36,22 +36,6 @@
 "Resources": {
   "EC2Instance": {
     "Type": "AWS::EC2::Instance",
-    "Metadata" : {
-      "AWS::CloudFormation::Init" : {
-        "configSets" : {
-        "execOrder" : [ "config1" ]
-        },
-        "config1" : {
-            "commands" : {
-                "test" : {
-                    "command" : "echo \"$CFNTEST\" > testlog.txt",
-                    "env" : { "CFNTEST" : "I come from config1 in user data. Yayy!! I worked! ::: START" },
-                    "cwd" : "~"
-                }
-              }
-        }
-      }
-    },
     "Properties": {
         "ImageId": "ami-66506c1c",
         "InstanceType": "t2.micro",
@@ -88,19 +72,29 @@
                         "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
 
-                        "# Install the files and packages from the metadata\n",
-                        "/opt/aws/bin/cfn-init -v ",
-                        " --stack ", { "Ref" : "AWS::StackName" },
-                        " --resource EC2Instance ",
-                        " --configsets execOrder ",
-                        " --region ", { "Ref" : "AWS::Region" }, "\n",
-
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
-                        "sudo service codedeploy-agent status"
+                        "sudo service codedeploy-agent status",
+
+                        "sudo echo Datasource.username=csye6225master Datasource.password=csye6225password > /var/db.txt \n",
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "echo Datasource.hostname=",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "RDSDB",
+                                            "Endpoint.Address"
+                                        ]
+                                    },
+                                    "Datasource.port=3306 Datasource.database=csye6225 >> /var/db.txt"
+                                ]
+                            ]
+                        }
                     ]
                 ]
             }
