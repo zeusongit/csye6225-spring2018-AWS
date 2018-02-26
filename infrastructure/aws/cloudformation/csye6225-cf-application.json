@@ -118,10 +118,10 @@
 
                         "# Install the files and packages from the metadata\n",
                         "/opt/aws/bin/cfn-init -v ",
-                        "--stack ", { "Ref" : "AWS::StackName" },
-                        "--resource EC2Instance ",
-                        "--configsets execOrder ",
-                        "--region ", { "Ref" : "AWS::Region" }, "\n",
+                        " --stack ", { "Ref" : "AWS::StackName" },
+                        " --resource EC2Instance ",
+                        " --configsets execOrder ",
+                        " --region ", { "Ref" : "AWS::Region" }, "\n",
 
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
@@ -132,9 +132,9 @@
                     ]
                 ]
             }
-        },
-        "DependsOn" : "RDSDB"
-      }
+        }
+      },
+      "DependsOn" : "RDSDB"
   },
   "S3" : {
   "Type" : "AWS::S3::Bucket",
