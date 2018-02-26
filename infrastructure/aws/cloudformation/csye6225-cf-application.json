@@ -39,7 +39,7 @@
     "Metadata" : {
       "AWS::CloudFormation::Init" : {
         "configSets" : {
-        "execOrder" : [ "config1" , "config2","config3" ],
+        "execOrder" : [ "config1" , "config2","config3" ]
         },
         "config1" : {
             "commands" : {
