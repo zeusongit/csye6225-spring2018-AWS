@@ -79,19 +79,29 @@
                         "sudo service codedeploy-agent start \n",
                         "sudo service codedeploy-agent status",
 
-                        "sudo echo MasterUsername=csye6225master$MasterPassword=csye6225password > /var/db.txt \n",
+                        "sudo printf \"NODE_ENV=development\nDB_USER=csye6225master\nDB_PASS=csye6225password\nDB_PORT=3306\nDB_NAME=csye6225\n\" > /var/.env \n",
                         {
                             "Fn::Join": [
                                 "",
                                 [
-                                    "echo $Hostname=",
+                                    "printf \"BUCKET=",
+                                    {"Ref" : "s3domain"},
+                                    "\"\n\" >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "printf \"DB_HOST=",
                                     {
                                         "Fn::GetAtt": [
                                             "RDSDB",
                                             "Endpoint.Address"
                                         ]
                                     },
-                                    "$Port=3306$DBName=csye6225 >> /var/db.txt"
+                                    "\"\n\" >> /var/.env \n"
                                 ]
                             ]
                         }

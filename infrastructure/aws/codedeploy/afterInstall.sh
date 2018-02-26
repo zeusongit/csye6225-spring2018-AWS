@@ -25,8 +25,9 @@ echo "#CSYE6225: doing after install: end"
 pwd
 ls -lrt
 cd ..
-sudo mv db.txt webapp/nodeapp-express
+sudo cp db.txt webapp/nodeapp-express
 cd webapp/nodeapp-express
+sudo chmod 666 db.txt
 pwd
 ls -lrt
 cd ../..
