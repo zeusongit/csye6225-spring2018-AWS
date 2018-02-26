@@ -4,11 +4,12 @@ node_js:
 
 
 script:
-  - pwd
   - npm install
   - npm test
-  - cd nodeapp-express
+  - cd nodeapp-express/
   - npm install
+  - ls -lrt
+  - pwd
   - cd ../..
   - ls -lrt
 
@@ -16,21 +17,21 @@ after_success:
   - pwd
   - ls -ltr
   - mkdir codedeploy_artifact
-  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh .
-  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml .
-  - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null
-  - zip -r csye6225-web-app-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip *.sh *.yml >/dev/null
-  - ls -al
-  - mv csye6225-web-app-$TRAVIS_JOB_NUMBER.zip codedeploy_artifact/
-  - rm -rf csye6225-spring2018 *.yml *.sh csye6225-spring2018.zip
-  - ls -al
-  - pwd
-  - cd codedeploy_artifact
-  - ls -al
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy_artifact/
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy_artifact/
+  - cd csye6225-spring2018/
+  - zip -r csye6225-spring2018.zip ./* >/dev/null
+  - cp csye6225-spring2018.zip ./../codedeploy_artifact/
+  - rm -rf csye6225-spring2018.zip
   - pwd
   - cd ..
+  - cd codedeploy_artifact/
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip *.yml *.sh csye6225-spring2018.zip >/dev/null 2>&1
+  - rm -rf csye6225-spring2018.zip *.yml *.sh
   - pwd
-  - ls -al
+  - ls -lrt
+  - cd ..
+
 
 deploy:
   - provider: s3
