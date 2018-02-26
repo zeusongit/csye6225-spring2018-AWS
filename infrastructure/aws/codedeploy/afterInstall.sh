@@ -2,9 +2,15 @@
 
 # update the permission and ownership of WAR file in the tomcat webapps directory
 echo "#CSYE6225: doing after install"
-cd /var/webapp/csye6225-spring2018
+cd /var
+sudo rm -rf webapp
+mkdir webapp
+mv csye6225-spring2018.zip webapp/
+cd /webapp
 sudo unzip csye6225-spring2018.zip -d ./
-jar xvf csye6225-spring2018.zip
+sudo rm -rf csye6225-spring2018.zip
+pwd
+ls -lrt
 #echo pwd
 #pwd
 #echo "now copying"
