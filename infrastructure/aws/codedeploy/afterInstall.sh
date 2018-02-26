@@ -13,12 +13,12 @@ pwd
 ls -lrt
 echo "#CSYE6225: doing after install: move zip to webapp dir"
 sudo mv csye6225-spring2018.zip webapp/
-cd /webapp
+cd webapp/
 echo "#CSYE6225: doing after install: go in webapp"
 pwd
 ls -lrt
 echo "#CSYE6225: doing after install: unzip nodeapp"
-sudo unzip csye6225-spring2018.zip -d ./webapp/
+sudo unzip csye6225-spring2018.zip
 echo "#CSYE6225: doing after install: remove zip from webapp folder"
 sudo rm -rf csye6225-spring2018.zip
 echo "#CSYE6225: doing after install: end"
