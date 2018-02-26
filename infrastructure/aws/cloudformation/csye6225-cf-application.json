@@ -36,6 +36,50 @@
 "Resources": {
   "EC2Instance": {
     "Type": "AWS::EC2::Instance",
+    "Metadata" : {
+      "AWS::CloudFormation::Init" : {
+        "configSets" : {
+        "execOrder" : [ "config1" , "config2","config3" ],
+        },
+        "config1" : {
+            "commands" : {
+                "test" : {
+                    "command" : "echo \"$CFNTEST\" > testlog.txt",
+                    "env" : { "CFNTEST" : "I come from config1 in user data. Yayy!! I worked! ::: START" },
+                    "cwd" : "/var"
+                }
+              }
+        },
+        "config2" : {
+            "commands" : {
+                "test" : {
+                  "command" : "echo \"$CFNTEST\" >> testlog.txt",
+                  "env" : { "CFNTEST" : "webapp dir created!" },
+                  "cwd" : "/var",
+                  "test" : "mkdir -p webapp",
+                  "ignoreErrors" : "false"
+                }
+            }
+        },
+        "config3" : {
+            "files" : {
+                "/var/webapp/.env" : {
+                  "content" : { "Fn::Join" : [ "", [
+                    "NODE_ENV=development\n",
+                    "BUCKET=", {"Ref" : "s3domain"}, "\n",
+                    "DB_HOST=", {"Fn::GetAtt": ["RDSDB","Endpoint.Address"]}, "\n",
+                    "DB_PORT=", {"Fn::GetAtt": ["RDSDB","Endpoint.Port"]}, "\n",
+                    "DB_USER=", {"Fn::GetAtt": ["RDSDB","MasterUsername"]}, "\n",
+                    "DB_PASS=", {"Fn::GetAtt": ["RDSDB","MasterUserPassword"]}, "\n",
+                    "DB_NAME=", {"Fn::GetAtt": ["RDSDB","DBName"]}, "\n"
+                    ]]},
+                  "mode"  : "000644",
+                  "owner" : "ubuntu"
+                }
+            }
+        }
+      }
+    },
     "Properties": {
         "ImageId": "ami-66506c1c",
         "InstanceType": "t2.micro",
@@ -72,6 +116,13 @@
                         "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
 
+                        "# Install the files and packages from the metadata\n",
+                        "/opt/aws/bin/cfn-init -v ",
+                        "--stack ", { "Ref" : "AWS::StackName" },
+                        "--resource EC2Instance ",
+                        "--configsets execOrder ",
+                        "--region ", { "Ref" : "AWS::Region" }, "\n"
+
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
                         "sudo chmod +x ./install \n",
@@ -81,7 +132,8 @@
                     ]
                 ]
             }
-        }
+        },
+        "DependsOn" : "RDSDB"
       }
   },
   "S3" : {

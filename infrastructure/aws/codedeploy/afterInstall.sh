@@ -5,24 +5,22 @@ echo "#CSYE6225: doing after install"
 cd /var
 pwd
 ls -lrt
+echo "#CSYE6225: doing after install: remove webapp if already exist"
 sudo rm -rf webapp
-mkdir webapp
+echo "#CSYE6225: doing after install: make dir webapp"
+sudo mkdir -p webapp
 pwd
 ls -lrt
-mv csye6225-spring2018.zip webapp/
+echo "#CSYE6225: doing after install: move zip to webapp dir"
+sudo mv csye6225-spring2018.zip webapp/
 cd /webapp
+echo "#CSYE6225: doing after install: go in webapp"
 pwd
 ls -lrt
+echo "#CSYE6225: doing after install: unzip nodeapp"
 sudo unzip csye6225-spring2018.zip -d ./webapp/
+echo "#CSYE6225: doing after install: remove zip from webapp folder"
 sudo rm -rf csye6225-spring2018.zip
+echo "#CSYE6225: doing after install: end"
 pwd
 ls -lrt
-#echo pwd
-#pwd
-#echo "now copying"
-#sudo cp -a csye6225-spring/. ./
-#chmod -R 777 csye6225-spring2018
-#sudo rm -rf csye6225-spring2018.zip csye6225-spring2018
-#echo "pwd and final files"
-#pwd
-#ls -lrt
