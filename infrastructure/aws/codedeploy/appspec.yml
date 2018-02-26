@@ -5,10 +5,6 @@ files:
   - source: ./csye6225-spring2018.zip
     destination: /var
 hooks:
-  BeforeInstall:
-   - location: ./beforeInstall.sh
-     timeout: 180
-     runas: ubuntu
   AfterInstall:
    - location: ./afterInstall.sh
      timeout: 180
