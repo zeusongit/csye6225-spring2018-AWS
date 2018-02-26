@@ -79,19 +79,19 @@
                         "sudo service codedeploy-agent start \n",
                         "sudo service codedeploy-agent status",
 
-                        "sudo echo Datasource.username=csye6225master Datasource.password=csye6225password > /var/db.txt \n",
+                        "sudo echo MasterUsername=csye6225master$MasterPassword=csye6225password > /var/db.txt \n",
                         {
                             "Fn::Join": [
                                 "",
                                 [
-                                    "echo Datasource.hostname=",
+                                    "echo $Hostname=",
                                     {
                                         "Fn::GetAtt": [
                                             "RDSDB",
                                             "Endpoint.Address"
                                         ]
                                     },
-                                    "Datasource.port=3306 Datasource.database=csye6225 >> /var/db.txt"
+                                    "$Port=3306$DBName=csye6225 >> /var/db.txt"
                                 ]
                             ]
                         }

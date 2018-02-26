@@ -24,3 +24,11 @@ sudo rm -rf csye6225-spring2018.zip
 echo "#CSYE6225: doing after install: end"
 pwd
 ls -lrt
+cd ..
+sudo mv db.txt webapp/nodeapp-express
+cd webapp/nodeapp-express
+pwd
+ls -lrt
+cd ../..
+pwd
+ls -lrt
