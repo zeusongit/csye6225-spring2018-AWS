@@ -63,6 +63,7 @@ else if(process.env.NODE_ENV==="development")
   storage=multerS3({
     s3: s3,
     bucket: process.env.BUCKET,//bucketname
+    acl: 'public-read',
     metadata: function (req, file, cb) {
       cb(null, {fieldName: file.fieldname});//fieldname
     },
@@ -314,19 +315,17 @@ app.post('/updateprofile',(req,res)=>{
           else{
             if(process.env.NODE_ENV==="development")
             {
-              var urlParams = {Bucket: process.env.BUCKET, Key: req.file.originalname + '-' + dt + path.extname(req.file.originalname)};
-              s3.getSignedUrl('getObject', urlParams, function(err, url){
-                var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
-                db.query(sql, function(err, result){
-                  if(err){
-                    req.flash('danger','Updation Unsuccessful');
-                    res.redirect('/dashboard');
-                  }
-                  if(result){
-                    req.flash('success','Profile picture updated successfully');
-                    res.redirect('/dashboard');
-                  }
-                });
+              var url = process.env.BUCKET + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
+              var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
+              db.query(sql, function(err, result){
+                if(err){
+                  req.flash('danger','Updation Unsuccessful');
+                  res.redirect('/dashboard');
+                }
+                if(result){
+                  req.flash('success','Profile picture updated successfully');
+                  res.redirect('/dashboard');
+                }
               });
             }
             else if(process.env.NODE_ENV==="local")
