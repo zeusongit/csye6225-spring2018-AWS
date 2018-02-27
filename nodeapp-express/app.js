@@ -315,7 +315,7 @@ app.post('/updateprofile',(req,res)=>{
           else{
             if(process.env.NODE_ENV==="development")
             {
-              var url = process.env.BUCKET + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
+              var url = 'https://s3.amazonaws.com/'+process.env.BUCKET +'/'+ req.file.originalname + '-' + dt + path.extname(req.file.originalname);
               var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
               db.query(sql, function(err, result){
                 if(err){
