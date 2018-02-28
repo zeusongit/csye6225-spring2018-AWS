@@ -1,4 +1,5 @@
 html,body{height: 100%;}
+body{background: linear-gradient(to bottom right, white, #013243);}
 .parallax-wrapper {
     position: relative;
 }
