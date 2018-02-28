@@ -47,7 +47,8 @@
               "Action" : [
                 "s3:Get*",
                 "s3:Put*",
-                "s3:List*"
+                "s3:List*",
+		            "s3:Delete*"
               ],
               "Resource" : "*"
             }
@@ -235,7 +236,7 @@
         "Type" : "AWS::S3::Bucket",
         "Properties" :
         {
-          "BucketName" : {"Ref" : "s3domain"},
+          "BucketName" : {"Ref" : "s3domain"}
         }
     },
     "CodeDeployApplication": {
