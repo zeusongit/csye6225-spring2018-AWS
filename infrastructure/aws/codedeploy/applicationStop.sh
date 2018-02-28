@@ -5,5 +5,10 @@ cd /var/webapp/nodeapp-express
 echo "PWD AND FILES"
 pwd
 ls -lrt
-sudo pm2 stop web-app
-sudo pm2 delete web-app
+pm2 show web-app
+if [ $? -eq 0 ]; then
+  sudo pm2 stop web-app
+  sudo pm2 delete web-app
+else
+  exit 0
+fi;
