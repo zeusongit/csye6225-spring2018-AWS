@@ -1,31 +1,58 @@
 #!/bin/bash
 #Variables
 
-stackname=$1
 
-domain=$(aws route53 list-hosted-zones --query HostedZones[0].Name --output text)
-trimdomain=${domain::-1}
-s3domain="code-deploy.$trimdomain"
-echo "S3 Domain: $s3domain"
-appname="csye6225CodeDeployApplication"
-echo $appname
-depname="csye6225CodeDeployApplication-depgroup"
-echo $depname
-accid=$(aws sts get-caller-identity --output text --query 'Account')
-echo "AccountId: $accid"
-
-
-createOutput=$(aws cloudformation create-stack --stack-name $stackname --capabilities CAPABILITY_NAMED_IAM --template-body file://csye6225-cf-ci-cd.json --parameters ParameterKey=s3domain,ParameterValue=$s3domain  ParameterKey=appname,ParameterValue=$appname ParameterKey=depname,ParameterValue=$depname ParameterKey=accid,ParameterValue=$accid)
-
-
-if [ $? -eq 0 ]; then
-	echo "Creating stack..."
-	aws cloudformation wait stack-create-complete --stack-name $stackname
-	echo "Stack created successfully. Stack Id below: "
-
-	echo $createOutput
-
+if [ -z "$1" ]; then
+	echo "please provide ci cd stack name"
 else
-	echo "Error in creation of stack"
-	echo $createOutput
+	stackname=$1
+
+	domain=$(aws route53 list-hosted-zones --query HostedZones[0].Name --output text)
+	trimdomain=${domain::-1}
+	s3domain="code-deploy.$trimdomain"
+	#Emptying S3 bucket
+	aws s3 rm s3://$s3domain --recursive
+	#Removing S3 bucket
+	aws s3 rb s3://$s3domain --force
+	#To make Travis insensitive
+	shopt -s nocasematch
+	testseq="Travis"
+
+	username=($(aws iam list-users --query "Users[*].UserName" --output text))
+	#echo $username
+
+	for j in  ${username[@]};
+	do
+			if [[ $j == *"$testseq"* ]];
+				then
+    			usr=$j
+    			echo "username= $usr"
+			fi
+	done
+
+	#Policy Arn List
+	arr=($(aws iam list-policies --scope Local --only-attached --query "Policies[*].Arn" --output text))
+	echo $arr
+	for i in  ${arr[@]};
+	do
+			if [[ $i == *"$testseq"* ]];
+				then
+				policy=$i
+				echo "Username = $usr"
+				echo "Policy = $policy"
+				aws iam detach-user-policy --user-name $usr --policy-arn $policy    			
+			fi
+	done
+
+	terminateOutput=$(aws cloudformation delete-stack --stack-name $stackname)
+	if [ $? -eq 0 ]; then
+		echo "Deletion in progress..."
+		aws cloudformation wait stack-delete-complete --stack-name $stackname
+		echo $terminateOutput
+		echo "Deletion of stack successful"
+	else
+	echo "Deletion failed"
+	echo $terminateOutput
+	fi;
+
 fi;

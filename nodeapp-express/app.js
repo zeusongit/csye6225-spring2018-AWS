@@ -287,17 +287,66 @@ app.post('/updateprofile',(req,res)=>{
       }
     }
     else if(ftype==="f3"){
-      var sql="update `user` set `image`=NULL where `username`='"+username+"'";
-      db.query(sql, function(err, result){
-        if(err){
-          req.flash('danger','Updation Unsuccessful');
-          res.redirect('/dashboard');
-        }
-        if(result){
-          req.flash('success','Profile picture removed successfully');
-          res.redirect('/dashboard');
-        }
-      });
+      if(process.env.NODE_ENV==="development")
+      {
+        var sql="SELECT `image` FROM `user` WHERE `username`='"+username+"'";
+        db.query(sql, function(err, result){
+          if(err)
+          {
+            console.log("sql0 error:"+err);
+            req.flash('danger','Updation Unsuccessful');
+            res.redirect('/dashboard');
+          }
+          else{
+            imagename=(result[0].image).replace('https://s3.amazonaws.com/'+process.env.BUCKET +'/', '');
+            s3.deleteObject({
+              Bucket: process.env.BUCKET,
+              Key: imagename
+            },function (err,data){
+              if(err){
+                console.log("s3 error"+err);
+                req.flash('danger','Updation Unsuccessful');
+                res.redirect('/dashboard');
+              }
+              if(data){
+                console.log("DELETED:"+data);
+                var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+                db.query(sql, function(err, result){
+                  if(err){
+                    console.log("sql1 error"+err);
+                    req.flash('danger','Updation Unsuccessful');
+                    res.redirect('/dashboard');
+                  }
+                  if(result){
+                    req.flash('success','Profile picture removed successfully');
+                    res.redirect('/dashboard');
+                  }
+                  else{
+                    console.log("sql2 error"+err);
+                    req.flash('danger','Updation Unsuccessful');
+                    res.redirect('/dashboard');
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      else if(process.env.NODE_ENV==="local")
+      {
+        console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+        var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+        db.query(sql, function(err, result){
+          if(err){
+            req.flash('danger','Updation Unsuccessful');
+            res.redirect('/dashboard');
+          }
+          if(result){
+            req.flash('success','Profile picture removed successfully');
+            res.redirect('/dashboard');
+          }
+        });
+      }
     }
     else{
         upload(req,res,(err)=>{
@@ -381,4 +430,15 @@ PORT='3000';
 //Start Server
 app.listen(PORT,()=>{
   console.log('Server started on '+PORT)
+});
+
+app.use(function(req, res, next){
+  res.status(404);
+
+  // respond with html page
+  if (req.accepts('html')) {
+    res.render('404', { url: req.url });
+    return;
+  }
+  //res.type('txt').send('Not found');
 });
