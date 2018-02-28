@@ -1,16 +1,5 @@
 html,body{height: 100%;}
 body{background: linear-gradient(to bottom right, white, #013243);}
-.parallax-wrapper {
-    position: relative;
-}
-
-.parallax-container {
-    height: 200px;
-    width: 100vw;
-    padding: 50px;
-    margin-left: calc(-50vw + 50% - 8px);
-    position: relative;
-}
 .footer {
   color: #fff;
   position: relative;
