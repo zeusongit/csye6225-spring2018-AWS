@@ -14,6 +14,8 @@ script:
   - ls -lrt
 
 after_success:
+  - pwd
+  - ls -ltr
   - mkdir codedeploy_artifact
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy_artifact/
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy_artifact/
