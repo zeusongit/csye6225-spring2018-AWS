@@ -2,6 +2,7 @@
 echo "#CSYE6225: start application pwd and move into nodeapp dir"
 pwd
 cd /var/webapp/nodeapp-express
+echo "SHOWING WEBAPP"
 echo "PWD AND FILES"
 pwd
 ls -lrt
