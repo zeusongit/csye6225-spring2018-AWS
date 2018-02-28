@@ -6,50 +6,16 @@ node_js:
 script:
   - npm install
   - npm test
-<<<<<<< HEAD
-<<<<<<< HEAD
-  - cd ..
-  - ls -lrt
-  - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null 2>&1
-=======
-  - cd nodeapp-express
-=======
   - cd nodeapp-express/
->>>>>>> b90399e83a906d4fbb8742dcfe2ffa3bb03aae61
   - npm install
   - ls -lrt
   - pwd
   - cd ../..
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   - ls -lrt
 
 after_success:
   - pwd
   - ls -ltr
-<<<<<<< HEAD
-  - mkdir codedeploy
-<<<<<<< HEAD
-  - cp infrastructure/aws/codedeploy/*.sh .
-  - cp infrastructure/aws/codedeploy/*.yml .
-  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018 *.sh *.yml >/dev/null 2>&1
-  - ls -al
-  - mv csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip codedeploy/
-  - ls -al
-  - pwd
-  - cd codedeploy
-=======
-  - cp -r csye6225-spring2018 ./codedeploy/
-  - cd csye6225-spring2018
-  - zip -r ./codedeploy/csye6225-spring2018.zip ./* >/dev/null
-  - cd ..
-  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy/
-  - cp ./csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy/
-  - cd codedeploy
-  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip csye6225-spring2018.zip csye6225-spring *.sh *.yml >/dev/null
-  - rm -rf csye6225-spring2018 *.yml *.sh csye6225-spring2018.zip
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
-  - ls -al
-=======
   - mkdir codedeploy_artifact
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy_artifact/
   - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy_artifact/
@@ -57,7 +23,6 @@ after_success:
   - zip -r csye6225-spring2018.zip ./* >/dev/null
   - cp csye6225-spring2018.zip ./../codedeploy_artifact/
   - rm -rf csye6225-spring2018.zip
->>>>>>> b90399e83a906d4fbb8742dcfe2ffa3bb03aae61
   - pwd
   - cd ..
   - cd codedeploy_artifact/
@@ -76,21 +41,14 @@ deploy:
     skip_cleanup: true
     access_key_id: $access_key_id
     secret_access_key: $secret_access_key
-<<<<<<< HEAD
-=======
     wait-until-deployed: true
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     on:
       branch: Assignment-6
 
   - provider: codedeploy
     access_key_id: $access_key_id
     bucket: $s3_bucket
-<<<<<<< HEAD
-    key: csye6225-web-app-$TRAVIS_JOB_NUMBER.zip
-=======
     key: csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
     bundle_type: zip
     application: $application
     deployment_group: $deployment_group
@@ -108,8 +66,73 @@ cache:
 notifications:
   email:
     on_success: always
-<<<<<<< HEAD
     on_failure: always
-=======
+language: node_js
+node_js:
+  - "9.4.0"
+
+
+script:
+  - npm install
+  - npm test
+  - cd nodeapp-express/
+  - npm install
+  - ls -lrt
+  - pwd
+  - cd ../..
+  - ls -lrt
+
+after_success:
+  - pwd
+  - ls -ltr
+  - mkdir codedeploy_artifact
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy_artifact/
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy_artifact/
+  - cd csye6225-spring2018/
+  - zip -r csye6225-spring2018.zip ./* >/dev/null
+  - cp csye6225-spring2018.zip ./../codedeploy_artifact/
+  - rm -rf csye6225-spring2018.zip
+  - pwd
+  - cd ..
+  - cd codedeploy_artifact/
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip *.yml *.sh csye6225-spring2018.zip >/dev/null 2>&1
+  - rm -rf csye6225-spring2018.zip *.yml *.sh
+  - pwd
+  - ls -lrt
+  - cd ..
+
+
+deploy:
+  - provider: s3
+    local_dir: codedeploy_artifact
+    bucket: $s3_bucket
+    region: us-east-1
+    skip_cleanup: true
+    access_key_id: $access_key_id
+    secret_access_key: $secret_access_key
+    wait-until-deployed: true
+    on:
+      branch: Assignment-6
+
+  - provider: codedeploy
+    access_key_id: $access_key_id
+    bucket: $s3_bucket
+    key: csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip
+    bundle_type: zip
+    application: $application
+    deployment_group: $deployment_group
+    region: us-east-1
+    secret_access_key: $secret_access_key
+    wait-until-deployed: true
+    on:
+      branch: Assignment-6
+
+
+cache:
+  directories:
+    -node_modules
+
+notifications:
+  email:
+    on_success: always
     on_failure: always
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
