@@ -1,19 +1,35 @@
 #!/bin/bash
 
 # update the permission and ownership of WAR file in the tomcat webapps directory
-<<<<<<< HEAD
-=======
 echo "#CSYE6225: doing after install"
-cd /var/webapp/csye6225-spring2018
-sudo unzip csye6225-spring2018.zip -d ./
-jar xvf csye6225-spring2018.zip
-#echo pwd
-#pwd
-#echo "now copying"
-#sudo cp -a csye6225-spring/. ./
-#chmod -R 777 csye6225-spring2018
-#sudo rm -rf csye6225-spring2018.zip csye6225-spring2018
-#echo "pwd and final files"
-#pwd
-#ls -lrt
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
+cd /var
+pwd
+ls -lrt
+echo "#CSYE6225: doing after install: remove webapp if already exist"
+sudo rm -rf webapp
+echo "#CSYE6225: doing after install: make dir webapp"
+sudo mkdir -p webapp
+pwd
+ls -lrt
+echo "#CSYE6225: doing after install: move zip to webapp dir"
+sudo mv csye6225-spring2018.zip webapp/
+cd webapp/
+echo "#CSYE6225: doing after install: go in webapp"
+pwd
+ls -lrt
+echo "#CSYE6225: doing after install: unzip nodeapp"
+sudo unzip csye6225-spring2018.zip
+echo "#CSYE6225: doing after install: remove zip from webapp folder"
+sudo rm -rf csye6225-spring2018.zip
+echo "#CSYE6225: doing after install: end"
+pwd
+ls -lrt
+cd ..
+sudo cp .env webapp/nodeapp-express
+cd webapp/nodeapp-express
+sudo chmod 666 .env
+pwd
+ls -lrt
+cd ../..
+pwd
+ls -lrt

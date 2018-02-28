@@ -1,14 +1,8 @@
 #!/bin/bash
-<<<<<<< HEAD
-sudo service tomcat7 start
-=======
-echo "#CSYE6225 running application"
-cd /var/
+echo "#CSYE6225: start application pwd and move into nodeapp dir"
 pwd
-ls -lrt
-cd /var/webapp/csye6225-spring2018/nodeapp-express
+cd /var/webapp/nodeapp-express
 echo "PWD AND FILES"
 pwd
 ls -lrt
-NODE_ENV=dev node app.js
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
+pm2 start app.js --watch

@@ -2,36 +2,9 @@ version: 0.0
 os: linux
 
 files:
-<<<<<<< HEAD
-  - source: ./appspec.yml
-    destination: /home/ubuntu
-  - source: ./applicationStop.sh
-    destination: /home/ubuntu
-  - source: ./beforeInstall.sh
-    destination: /home/ubuntu
-  - source: ./afterInstall.sh
-    destination: /home/ubuntu
-  - source: ./applicationStart.sh
-    destination: /home/ubuntu
-  - source: ./validateService.sh
-    destination: /home/ubuntu                
-  - source: ./build/libs/ROOT.war
-    destination: /var/lib/tomcat7/webapps
-
+  - source: ./csye6225-spring2018.zip
+    destination: /var
 hooks:
-  ApplicationStop:
-   - location: ./applicationStop.sh
-     timeout: 180
-     runas: ubuntu
-=======
-  - source: csye6225-spring2018.zip
-    destination: /var/webapp/csye6225-spring2018
-hooks:
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
-  BeforeInstall:
-   - location: ./beforeInstall.sh
-     timeout: 180
-     runas: ubuntu
   AfterInstall:
    - location: ./afterInstall.sh
      timeout: 180

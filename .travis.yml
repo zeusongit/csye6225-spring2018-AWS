@@ -4,16 +4,21 @@ node_js:
 
 
 script:
-  - pwd
   - npm install
   - npm test
+<<<<<<< HEAD
 <<<<<<< HEAD
   - cd ..
   - ls -lrt
   - zip -r csye6225-spring2018.zip csye6225-spring2018 >/dev/null 2>&1
 =======
   - cd nodeapp-express
+=======
+  - cd nodeapp-express/
+>>>>>>> b90399e83a906d4fbb8742dcfe2ffa3bb03aae61
   - npm install
+  - ls -lrt
+  - pwd
   - cd ../..
 >>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   - ls -lrt
@@ -21,6 +26,7 @@ script:
 after_success:
   - pwd
   - ls -ltr
+<<<<<<< HEAD
   - mkdir codedeploy
 <<<<<<< HEAD
   - cp infrastructure/aws/codedeploy/*.sh .
@@ -43,14 +49,28 @@ after_success:
   - rm -rf csye6225-spring2018 *.yml *.sh csye6225-spring2018.zip
 >>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   - ls -al
+=======
+  - mkdir codedeploy_artifact
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.sh ./codedeploy_artifact/
+  - cp csye6225-spring2018/infrastructure/aws/codedeploy/*.yml ./codedeploy_artifact/
+  - cd csye6225-spring2018/
+  - zip -r csye6225-spring2018.zip ./* >/dev/null
+  - cp csye6225-spring2018.zip ./../codedeploy_artifact/
+  - rm -rf csye6225-spring2018.zip
+>>>>>>> b90399e83a906d4fbb8742dcfe2ffa3bb03aae61
   - pwd
   - cd ..
+  - cd codedeploy_artifact/
+  - zip -r csye6225-spring2018-$TRAVIS_JOB_NUMBER.zip *.yml *.sh csye6225-spring2018.zip >/dev/null 2>&1
+  - rm -rf csye6225-spring2018.zip *.yml *.sh
   - pwd
-  - ls -al
+  - ls -lrt
+  - cd ..
+
 
 deploy:
   - provider: s3
-    local_dir: codedeploy
+    local_dir: codedeploy_artifact
     bucket: $s3_bucket
     region: us-east-1
     skip_cleanup: true

@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-"Description" : "Creation of Stack for Assignment 5",
-=======
-"Description" : "Creation of Stack for Assignment 6",
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
+"Description" : "Application Stack",
 "AWSTemplateFormatVersion" : "2010-09-09",
 
 "Parameters" : {
@@ -31,13 +27,10 @@
   "dbSecurityGroupId" : {
     "Description" : "Resource ID for DB Security Group",
     "Type" : "String"
-<<<<<<< HEAD
-=======
   },
   "iaminstance" : {
     "Description" : "Instance Profile Name for CodeDeploy to S3",
     "Type" : "String"
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
   }
 },
 "Resources": {
@@ -51,11 +44,8 @@
         "KeyName": "csye6225",
         "SubnetId": {"Ref": "ec2Subnet"},
         "Tenancy": "default",
-<<<<<<< HEAD
-=======
         "IamInstanceProfile": {"Ref":"iaminstance"},
         "Tags": [{"Key" : "Name", "Value" : "MyEC2Instance"}],
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
         "BlockDeviceMappings" : [
         {
           "DeviceName" : "/dev/sda1",
@@ -72,11 +62,8 @@
                     [
                         "#!/bin/bash -xe \n",
                         "sudo apt-get update \n",
-<<<<<<< HEAD
-=======
                         "sudo apt-get install openjdk-8-jdk -y\n",
                         "sudo apt-get install ruby -y \n",
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
                         "sudo apt-get install wget -y \n",
                         "sudo apt-get install python -y \n",
 
@@ -84,22 +71,51 @@
                         "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
                         "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
+                        "sudo npm install pm2 -g"
 
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
-<<<<<<< HEAD
-                        "sudo reboot"
-=======
                         "sudo service codedeploy-agent status \n",
->>>>>>> 377973ee3d90e0bdedc134c90b9df0e2edb729ce
+
+                        "sudo echo NODE_ENV=development > /var/.env \n",
+                        "sudo echo DB_USER=csye6225master >> /var/.env \n",
+                        "sudo echo DB_PASS=csye6225password >> /var/.env \n",
+                        "sudo echo DB_PORT=3306 >> /var/.env \n",
+                        "sudo echo DB_NAME=csye6225 >> /var/.env \n",
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo BUCKET=",
+                                    {"Ref" : "s3domain"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo DB_HOST=",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "RDSDB",
+                                            "Endpoint.Address"
+                                        ]
+                                    },
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        }
                     ]
                 ]
             }
         }
-      }
+      },
+      "DependsOn" : "RDSDB"
   },
   "S3" : {
   "Type" : "AWS::S3::Bucket",

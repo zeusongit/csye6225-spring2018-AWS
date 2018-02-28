@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Node Web App</title>
-     <link rel='stylesheet' href='/stylesheets/style.css' />
+     <link rel='stylesheet' href='/css/style.css' />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
    <script type="text/javascript">
+   $(document).ready(function(){
+     $('[data-toggle="tooltip"]').tooltip();
+   });
    function remove()
    {
      document.getElementById("ftype").value ="f3";
@@ -34,4 +37,5 @@
         </div><!--/.nav-collapse -->
       </div><!--/.container-fluid -->
     </nav>
-<div class="container">
+<div id="wrap">
+<div class="container clear-top">

@@ -1,38 +1,50 @@
 
-const express=require('express');
-const AWS = require('aws-sdk');
-const multerS3 = require('multer-s3');
-//AWS.config.loadFromPath('./config.json');
-//const busboy = require('express-busboy');
-//const fileUpload = require('express-fileupload');
-const multer = require('multer')
-const path=require('path');
-const expressValidator=require('express-validator');
-const bodyParser=require('body-parser');
-const flash=require('connect-flash');
-const session = require('express-session');
-const bcrypt=require('bcrypt');
+const de=require('dotenv').load();// Lets us set environment variable define in .env file on root dir
+const express=require('express');// Loads the web application framework
+const AWS = require('aws-sdk');// Lets us interact with the aws services
+const multerS3 = require('multer-s3');// Lets us interact with the S3 Bucket for multipart forms upload
+const multer = require('multer')// Lets us interact with multipart forms upload
+const path=require('path');// Lets us manipulate/use paths
+const expressValidator=require('express-validator');// Used to validate forms from request.body
+const bodyParser=require('body-parser');// Used to parse form data
+const flash=require('connect-flash');// Lets us display flash messages for notifications/errors (async)
+const session = require('express-session');// loads session functionality compatible with express
+const bcrypt=require('bcrypt');// for hashing
 
 
 
-const conn=require('./dbconn.js');
+const conn=require('./dbconn.js');//DB connection file
 const db=new conn();
 console.log("...");
 db.connect((err)=>{
   if(err){
     throw err;
   }
+  db.query('CREATE DATABASE IF NOT EXISTS '+process.env.DB_NAME, function (err) {// create db if not exist
+    if (err) throw err;
+    db.query('USE '+process.env.DB_NAME, function (err) {
+      if (err) throw err;
+      db.query('create table IF NOT EXISTS user('
+        + 'user_id INT NOT NULL AUTO_INCREMENT,'
+        + 'username VARCHAR(100) NOT NULL,'
+        + 'password VARCHAR(100) NOT NULL,'
+        + 'email VARCHAR(100) NOT NULL,'
+        + 'about VARCHAR(150),'
+        + 'image varchar(255),'
+        + 'created_at DATE,'
+        + 'updated_at DATE,'
+        + 'PRIMARY KEY ( user_id )'
+        +  ')', function (err) {
+            if (err) throw err;
+      });
+    });
+  });
   console.log("Mysql connected!...");
 });
 
 const app=express();
 const s3 = new AWS.S3();
-//db.connect((err)=>{
-//  if(err){
-//    throw err;
-//  }
-//  console.log("Mysql connected!...")
-//});
+
 //Set Storage engine
 const dt=Date.now();
 var storage=null;
@@ -46,11 +58,12 @@ if(process.env.NODE_ENV==="local")
   	}
   });
 }
-else if(process.env.NODE_ENV==="dev")
+else if(process.env.NODE_ENV==="development")
 {
   storage=multerS3({
     s3: s3,
-    bucket: 'dummy-bucket-152',//bucketname
+    bucket: process.env.BUCKET,//bucketname
+    acl: 'public-read',
     metadata: function (req, file, cb) {
       cb(null, {fieldName: file.fieldname});//fieldname
     },
@@ -62,7 +75,6 @@ else if(process.env.NODE_ENV==="dev")
 else{console.log("3");}
 //init upload
 const upload=multer({
-  //storage:storage,
   storage:storage,
   limits:{fileSize:1000000},
   fileFilter:function(req,file,callback){
@@ -94,9 +106,6 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 //static file path
 app.use(express.static(path.join(__dirname,'public')));
-
-//express file uploader
-//app.use(fileUpload({ safeFileNames: true, preserveExtension: true }));
 
 
 //session
@@ -278,17 +287,66 @@ app.post('/updateprofile',(req,res)=>{
       }
     }
     else if(ftype==="f3"){
-      var sql="update `user` set `image`=NULL where `username`='"+username+"'";
-      db.query(sql, function(err, result){
-        if(err){
-          req.flash('danger','Updation Unsuccessful');
-          res.redirect('/dashboard');
-        }
-        if(result){
-          req.flash('success','Profile picture removed successfully');
-          res.redirect('/dashboard');
-        }
-      });
+      if(process.env.NODE_ENV==="development")
+      {
+        var sql="SELECT `image` FROM `user` WHERE `username`='"+username+"'";
+        db.query(sql, function(err, result){
+          if(err)
+          {
+            console.log("sql0 error:"+err);
+            req.flash('danger','Updation Unsuccessful');
+            res.redirect('/dashboard');
+          }
+          else{
+            imagename=(result[0].image).replace('https://s3.amazonaws.com/'+process.env.BUCKET +'/', '');
+            s3.deleteObject({
+              Bucket: process.env.BUCKET,
+              Key: imagename
+            },function (err,data){
+              if(err){
+                console.log("s3 error"+err);
+                req.flash('danger','Updation Unsuccessful');
+                res.redirect('/dashboard');
+              }
+              if(data){
+                console.log("DELETED:"+data);
+                var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+                db.query(sql, function(err, result){
+                  if(err){
+                    console.log("sql1 error"+err);
+                    req.flash('danger','Updation Unsuccessful');
+                    res.redirect('/dashboard');
+                  }
+                  if(result){
+                    req.flash('success','Profile picture removed successfully');
+                    res.redirect('/dashboard');
+                  }
+                  else{
+                    console.log("sql2 error"+err);
+                    req.flash('danger','Updation Unsuccessful');
+                    res.redirect('/dashboard');
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      else if(process.env.NODE_ENV==="local")
+      {
+        console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+        var sql="update `user` set `image`=NULL where `username`='"+username+"'";
+        db.query(sql, function(err, result){
+          if(err){
+            req.flash('danger','Updation Unsuccessful');
+            res.redirect('/dashboard');
+          }
+          if(result){
+            req.flash('success','Profile picture removed successfully');
+            res.redirect('/dashboard');
+          }
+        });
+      }
     }
     else{
         upload(req,res,(err)=>{
@@ -304,21 +362,19 @@ app.post('/updateprofile',(req,res)=>{
             console.log("no image selected");
           }
           else{
-            if(process.env.NODE_ENV==="dev")
+            if(process.env.NODE_ENV==="development")
             {
-              var urlParams = {Bucket: 'dummy-bucket-152', Key: req.file.originalname + '-' + dt + path.extname(req.file.originalname)};
-              s3.getSignedUrl('getObject', urlParams, function(err, url){
-                var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
-                db.query(sql, function(err, result){
-                  if(err){
-                    req.flash('danger','Updation Unsuccessful');
-                    res.redirect('/dashboard');
-                  }
-                  if(result){
-                    req.flash('success','Profile picture updated successfully');
-                    res.redirect('/dashboard');
-                  }
-                });
+              var url = 'https://s3.amazonaws.com/'+process.env.BUCKET +'/'+ req.file.originalname + '-' + dt + path.extname(req.file.originalname);
+              var sql="update `user` set `image`='"+url+"' where `username`='"+username+"'";
+              db.query(sql, function(err, result){
+                if(err){
+                  req.flash('danger','Updation Unsuccessful');
+                  res.redirect('/dashboard');
+                }
+                if(result){
+                  req.flash('success','Profile picture updated successfully');
+                  res.redirect('/dashboard');
+                }
               });
             }
             else if(process.env.NODE_ENV==="local")
@@ -370,7 +426,19 @@ app.get('/profile/:username',(req,res)=>{
 let login=require('./routes/login');
 app.use('/login',login);
 
+PORT='3000';
 //Start Server
-app.listen('3333',()=>{
-  console.log('Server started on 3031')
+app.listen(PORT,()=>{
+  console.log('Server started on '+PORT)
+});
+
+app.use(function(req, res, next){
+  res.status(404);
+
+  // respond with html page
+  if (req.accepts('html')) {
+    res.render('404', { url: req.url });
+    return;
+  }
+  //res.type('txt').send('Not found');
 });
