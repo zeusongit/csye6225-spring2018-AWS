@@ -1,6 +1,6 @@
 {
 
-    "Description" : "Creation of Stack for Assignment 5",
+    "Description" : "Networking Stack",
     "AWSTemplateFormatVersion" : "2010-09-09",
 
     "Parameters" : {
@@ -139,7 +139,7 @@
           "Type": "AWS::EC2::SecurityGroup",
           "Properties": {
           "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-webapp-secuitygroup"]] },
-          "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443",
+          "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443, NodeJS access via port 3000",
           "VpcId": { "Ref" : "vpc1" },
           "SecurityGroupIngress": [
               {
@@ -158,6 +158,12 @@
                   "IpProtocol": "tcp",
                   "FromPort": "443",
                   "ToPort": "443",
+                  "CidrIp": "0.0.0.0/0"
+              },
+              {
+                  "IpProtocol": "tcp",
+                  "FromPort": "3000",
+                  "ToPort": "3000",
                   "CidrIp": "0.0.0.0/0"
               }
           ]

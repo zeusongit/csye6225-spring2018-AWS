@@ -5,4 +5,5 @@ cd /var/webapp/nodeapp-express
 echo "PWD AND FILES"
 pwd
 ls -lrt
-pm2 start app.js -i max --name web-app
+sudo pm2 stop web-app
+sudo pm2 delete web-app

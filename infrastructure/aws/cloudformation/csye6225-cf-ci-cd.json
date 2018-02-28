@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Create IAM Policy and roles for EC2,CodeDeploy and TravisCI for Assignment-6",
+  "Description" : "IAM Policy and roles for EC2,CodeDeploy and TravisCI : CD-CI Stack",
   "Parameters" : {
     "s3domain" : {
       "Description" : "S3 Bucket Name",

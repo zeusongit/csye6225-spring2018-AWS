@@ -1,5 +1,5 @@
 {
-"Description" : "Creation of Stack for Assignment 6",
+"Description" : "Application Stack",
 "AWSTemplateFormatVersion" : "2010-09-09",
 
 "Parameters" : {
@@ -71,18 +71,51 @@
                         "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
                         "sudo apt-get install -y nodejs \n",
                         "sudo apt-get install -y build-essential \n",
+                        "sudo npm install pm2 -g"
 
                         "sudo apt-get update \n",
                         "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
                         "sudo chmod +x ./install \n",
                         "sudo ./install auto \n",
                         "sudo service codedeploy-agent start \n",
-                        "sudo service codedeploy-agent status"
+                        "sudo service codedeploy-agent status \n",
+
+                        "sudo echo NODE_ENV=development > /var/.env \n",
+                        "sudo echo DB_USER=csye6225master >> /var/.env \n",
+                        "sudo echo DB_PASS=csye6225password >> /var/.env \n",
+                        "sudo echo DB_PORT=3306 >> /var/.env \n",
+                        "sudo echo DB_NAME=csye6225 >> /var/.env \n",
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo BUCKET=",
+                                    {"Ref" : "s3domain"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo DB_HOST=",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "RDSDB",
+                                            "Endpoint.Address"
+                                        ]
+                                    },
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        }
                     ]
                 ]
             }
         }
-      }
+      },
+      "DependsOn" : "RDSDB"
   },
   "S3" : {
   "Type" : "AWS::S3::Bucket",

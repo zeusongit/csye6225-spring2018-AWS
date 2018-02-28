@@ -1,2 +1,4 @@
-./node_modules/*
-./nodeapp-express/node_modules/*
+/node_modules/*
+/nodeapp-express/node_modules/*
+/*/.env
+

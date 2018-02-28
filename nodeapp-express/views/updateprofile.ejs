@@ -10,7 +10,6 @@
     <% }) %>
 <% } %>
 <h5><a href="/dashboard" style="text-decoration:none;padding:5px 10px;background-color:#6C7A89;color:#fff;border-radius:20px">Go to Dashboard</a></h5>
-<br/>
 <div class="row">
   <div class="col-sm-7" style="padding-top:2%">
     <form method="post" action="/updateprofile" enctype="multipart/form-data" name="frm">
@@ -26,10 +25,9 @@
     </form>
     <form method="post" action="/updateprofile" name="frm2">
       <input type="hidden" value="f2" name="ftype" id="ftype" />
-      <table style="font-size:1.5em;" width="100%" border="0">
+      <table style="font-size:1.5em;" width="135%" border="0">
         <tr style="font-size:0.9em;color:#6C7A89"><td colspan="2" style="padding-top:20px">About me (Max. 140 characters)</td></tr>
-        <tr><td td colspan="2"><textarea name="aboutme" id="aboutme" class="form-control" rows="7" cols="40" style="resize:none"></textarea><br/></td></tr>
-        <tr><td colspan="2"><input type="submit" value="Update About Me" style="font-size:0.7em;padding:5px 15px;background-color:#013243;color:#fff;border-radius:20px" /></td></tr>
+        <tr><td td colspan="2"><textarea name="aboutme" id="aboutme" class="form-control" rows="7" cols="40" style="resize:none"></textarea></td><td style="padding-left:10px"><input type="submit" value="Update About Me" style="font-size:0.7em;padding:5px 15px;background-color:#013243;color:#fff;border-radius:20px" /></td></tr>
       </table>
     </form>
   </div>
