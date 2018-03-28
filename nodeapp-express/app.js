@@ -44,6 +44,9 @@ db.connect((err)=>{
 
 const app=express();
 const s3 = new AWS.S3();
+const sns = new AWS.SNS({
+  region: 'us-east-1'
+});
 
 //Set Storage engine
 const dt=Date.now();
@@ -247,8 +250,6 @@ app.get('/updateprofile',(req,res)=>{
     res.redirect('/');}
 });
 
-
-
 app.post('/updateprofile',(req,res)=>{
 
   if(req.session.username)
@@ -419,6 +420,52 @@ app.get('/profile/:username',(req,res)=>{
   else{
     req.flash('danger','Request denied!');
     res.redirect('/');
+  }
+});
+
+app.get('/forgot',(req,res)=>{
+  var username = req.params.username;
+  if(username)
+  {
+    req.flash('danger','Already Logged in!');
+    res.redirect('/');
+  }
+  else{
+    res.render('forgot');
+  }
+});
+app.post('/forgot',(req,res)=>{
+  req.checkBody('useremail','Please enter email address').notEmpty();
+  var errors=req.validationErrors();
+  if(errors){
+    console.log(errors[0]);
+    res.render('forgot',{errors:errors});
+  }
+  else{
+    var msg=req.body.useremail+"|"+process.env.EMAIL_SOURCE+"|"+process.env.DDB_TABLE+"|"+req.get('host');
+    console.log(msg);
+    var params = {
+      Message: msg, /* required */
+      TopicArn:process.env.TOPIC_ARN
+    };
+    sns.publish(params, function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      else{
+        console.log(data);
+        req.flash('success','Reset link sent successfully!');
+        res.redirect('/forgot');
+      }           // successful response
+    });
+  }
+});
+
+app.get('/reset',(req,res)=>{
+  if(req.query.token)
+  {
+    res.render('reset');
+  }
+  else{
+    res.render('404', { url: req.url });
   }
 });
 
