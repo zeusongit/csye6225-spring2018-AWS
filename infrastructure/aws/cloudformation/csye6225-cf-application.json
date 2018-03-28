@@ -149,8 +149,6 @@
                                 ]
                             ]
                         },
-                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
-                        "sudo python awslogs-agent-setup.py -n -r us-east-1 \n",
                         "sudo echo [Unit] > /var/awslogs.service \n",
                         "sudo echo Description=The CloudWatch Logs agent >> /var/awslogs.service \n",
                         "sudo echo After=rc-local.service >> /var/awslogs.service \n",
@@ -164,6 +162,8 @@
                         "sudo echo [Install] >> /var/awslogs.service \n",
                         "sudo echo WantedBy=multi-user.target >> /var/awslogs.service \n",
                         "sudo mv awslogs.service /etc/systemd/system \n",
+                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
+                        "sudo python awslogs-agent-setup.py -n -r us-east-1 \n",
                         "sudo systemctl enable awslogs.service \n",
                         "sudo systemctl start awslogs.service \n"
                     ]
