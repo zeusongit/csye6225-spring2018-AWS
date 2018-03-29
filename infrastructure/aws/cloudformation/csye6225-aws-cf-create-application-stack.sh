@@ -24,14 +24,14 @@ trimdomain=${domain::-1}
 s3domain="web-app.$trimdomain"
 echo "S3 Domain: $s3domain"
 var2=$(aws sns list-topics --query Topics[].TopicArn --output text)
-var1="LambdaTopic"
+var1="LamdaTopic"
 for a in ${var2[*]}
 do
    if [[ "$a" =~ "$var1" ]]; then
    		topicarn=$a
 	fi
 done
-echo $topicarn
+echo "topicarn: $topicarn"
 
 createOutput=$(aws cloudformation create-stack --stack-name $stackname --template-body file://csye6225-cf-application.json --parameters ParameterKey=stackname,ParameterValue=$stackname ParameterKey=dbsubnet,ParameterValue=$dbsubnet ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=ec2Subnet,ParameterValue=$subnet1 ParameterKey=ec2SecurityGroup,ParameterValue=$sgec2 ParameterKey=dbSecurityGroupId,ParameterValue=$sgdb ParameterKey=iaminstance,ParameterValue=$iaminstance ParameterKey=domainname,ParameterValue=$trimdomain ParameterKey=topicarn,ParameterValue=$topicarn)
 
