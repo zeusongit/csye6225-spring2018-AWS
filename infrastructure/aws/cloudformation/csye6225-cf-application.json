@@ -171,7 +171,8 @@
                         "sudo echo [Install] >> /var/awslogs.service \n",
                         "sudo echo WantedBy=multi-user.target >> /var/awslogs.service \n",
                         "sudo mv /var/awslogs.service /etc/systemd/system \n",
-                        "sudo echo --Custom Log File-- > /var/log/customlog.log \n"
+                        "sudo echo --Custom Log File-- > /var/log/customlog.log \n",
+                        "sudo chmod 777 /var/log/customlog.log \n",
                         "sudo systemctl enable awslogs.service \n",
                         "sudo systemctl start awslogs.service \n"
                     ]
