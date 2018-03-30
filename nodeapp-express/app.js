@@ -10,6 +10,7 @@ const bodyParser=require('body-parser');// Used to parse form data
 const flash=require('connect-flash');// Lets us display flash messages for notifications/errors (async)
 const session = require('express-session');// loads session functionality compatible with express
 const bcrypt=require('bcrypt');// for hashing
+const winston = require('winston');
 
 
 
@@ -41,6 +42,15 @@ db.connect((err)=>{
   });
   console.log("Mysql connected!...");
 });
+
+var logger = new winston.Logger({
+    level: 'info',
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: '/var/log/customlog.log' })
+    ]
+  });
+  logger.info("---Logs Initiated---");
 
 const app=express();
 const s3 = new AWS.S3();

@@ -24,7 +24,7 @@ trimdomain=${domain::-1}
 s3domain="web-app.$trimdomain"
 echo "S3 Domain: $s3domain"
 var2=$(aws sns list-topics --query Topics[].TopicArn --output text)
-var1="LamdaTopic"
+var1="LambdaTopic"
 for a in ${var2[*]}
 do
    if [[ "$a" =~ "$var1" ]]; then

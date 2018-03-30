@@ -149,6 +149,15 @@
                                 ]
                             ]
                         },
+                        "sudo echo [general] > /var/awslogs.conf \n",
+                        "sudo echo state_file = /var/awslogs/state/agent-state >> /var/awslogs.conf \n",
+                        "sudo echo [/var/log/messages] >> /var/awslogs.conf \n",
+                        "sudo echo file = /var/log/customlog.log >> /var/awslogs.conf \n",
+                        "sudo echo log_group_name = /var/log/syslog >> /var/awslogs.conf \n",
+                        "sudo echo log_stream_name = teststream >> /var/awslogs.conf \n",
+                        "sudo echo datetime_format = %b %d %H:%M:%S >> /var/awslogs.conf \n",
+                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
+                        "sudo python awslogs-agent-setup.py -n -r us-east-1 -c /var/awslogs.conf\n",
                         "sudo echo [Unit] > /var/awslogs.service \n",
                         "sudo echo Description=The CloudWatch Logs agent >> /var/awslogs.service \n",
                         "sudo echo After=rc-local.service >> /var/awslogs.service \n",
@@ -157,13 +166,12 @@
                         "sudo echo Restart=always >> /var/awslogs.service \n",
                         "sudo echo KillMode=process >> /var/awslogs.service \n",
                         "sudo echo TimeoutSec=infinity >> /var/awslogs.service \n",
-                        "sudo echo PIDFile=/var/awslogs/state/awslogs.pid >> /var/awslogs.service \n",
-                        "sudo echo ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile $PIDFILE --user awslogs --chuid awslogs & >> /var/awslogs.service \n",
+                        "sudo echo PIDFILE=/var/awslogs/state/awslogs.pid >> /var/awslogs.service \n",
+                        "sudo echo ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile '$PIDFILE' --user awslogs --chuid awslogs '&' >> /var/awslogs.service \n",
                         "sudo echo [Install] >> /var/awslogs.service \n",
                         "sudo echo WantedBy=multi-user.target >> /var/awslogs.service \n",
-                        "sudo mv awslogs.service /etc/systemd/system \n",
-                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
-                        "sudo python awslogs-agent-setup.py -n -r us-east-1 \n",
+                        "sudo mv /var/awslogs.service /etc/systemd/system \n",
+                        "sudo echo --Custom Log File-- > /var/log/customlog.log \n"
                         "sudo systemctl enable awslogs.service \n",
                         "sudo systemctl start awslogs.service \n"
                     ]
