@@ -48,11 +48,7 @@
                 "s3:Get*",
                 "s3:Put*",
                 "s3:List*",
-<<<<<<< HEAD
                 "s3:Delete*"
-=======
-		            "s3:Delete*"
->>>>>>> d794d0b0c88f03f1f5cae0bbe92becce568a61d8
               ],
               "Resource" : "*"
             }
