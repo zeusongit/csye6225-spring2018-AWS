@@ -23,7 +23,7 @@ var logger = new winston.Logger({
 
 const conn=require('./dbconn.js');//DB connection file
 const db=new conn();
-console.log("...");
+logger.info("...");
 db.connect((err)=>{
   if(err){
     throw err;
@@ -47,7 +47,7 @@ db.connect((err)=>{
       });
     });
   });
-  console.log("Mysql connected!...");
+  logger.info("Mysql connected!...");
 });
 
 const app=express();
@@ -83,14 +83,14 @@ else if(process.env.NODE_ENV==="development")
     }
   });
 }
-else{console.log("3");}
+else{logger.info("3");}
 //init upload
 const upload=multer({
   storage:storage,
   limits:{fileSize:1000000},
   fileFilter:function(req,file,callback){
     checkFileType(file,callback);
-    console.log(file);
+    logger.info(file);
   }
 }).single('fileupload');
 
@@ -153,7 +153,7 @@ app.get('/',(req,res)=>{
 app.get('/logout',(req,res)=>{
   if(req.session.username){
   req.session.username=null;
-  console.log('Logged out');
+  logger.info('Logged out');
   req.flash('success','Logged Out!');
   }
   res.render('index');
@@ -206,7 +206,7 @@ app.post('/signup',(req,res)=>{
         if(result.length>0)
         {
           flag=true;
-          console.log(flag+'--userexist'+err+'|'+result);
+          logger.info(flag+'--userexist'+err+'|'+result);
           req.flash('danger','User already exist!');
           res.redirect('/signup');
           return null;
@@ -214,7 +214,7 @@ app.post('/signup',(req,res)=>{
         else{
           if(flag===false)
           {
-            console.log(flag);
+            logger.info(flag);
           const sess=req.session;
           let user={
             username:req.body.username.trim(),
@@ -226,12 +226,12 @@ app.post('/signup',(req,res)=>{
           let query2=db.query(sql2,(err,result)=>{
             if(result.length>0)
             {
-              console.log('insert error:'+err);
+              logger.info('insert error:'+err);
               req.flash('danger','User not signed!');
               res.render('/signup');
             }
             else{
-              console.log('signed in:'+result);
+              logger.info('signed in:'+result);
               req.flash('success','User signed up! Log In now');
               res.redirect('/');
             }
@@ -265,7 +265,7 @@ app.post('/updateprofile',(req,res)=>{
     //model prep in case of error
     var username=req.session.username;
     var ftype=req.body.ftype;
-    console.log(ftype);
+    logger.info(ftype);
     var rs=null;
     var imagename="no-image.png";
     var sql="SELECT * FROM `user` WHERE `username`='"+username+"'";
@@ -278,7 +278,7 @@ app.post('/updateprofile',(req,res)=>{
       req.checkBody('aboutme','About me cannot exceed 140 characters!').isLength({max:140});
       var errors=req.validationErrors();
       if(errors){
-        console.log(errors[0]);
+        logger.info(errors[0]);
         res.render('updateprofile',{user:rs,imagename:imagename,errors:errors});
       }
       else{
@@ -302,7 +302,7 @@ app.post('/updateprofile',(req,res)=>{
         db.query(sql, function(err, result){
           if(err)
           {
-            console.log("sql0 error:"+err);
+            logger.info("sql0 error:"+err);
             req.flash('danger','Updation Unsuccessful');
             res.redirect('/dashboard');
           }
@@ -313,16 +313,16 @@ app.post('/updateprofile',(req,res)=>{
               Key: imagename
             },function (err,data){
               if(err){
-                console.log("s3 error"+err);
+                logger.info("s3 error"+err);
                 req.flash('danger','Updation Unsuccessful');
                 res.redirect('/dashboard');
               }
               if(data){
-                console.log("DELETED:"+data);
+                logger.info("DELETED:"+data);
                 var sql="update `user` set `image`=NULL where `username`='"+username+"'";
                 db.query(sql, function(err, result){
                   if(err){
-                    console.log("sql1 error"+err);
+                    logger.info("sql1 error"+err);
                     req.flash('danger','Updation Unsuccessful');
                     res.redirect('/dashboard');
                   }
@@ -331,7 +331,7 @@ app.post('/updateprofile',(req,res)=>{
                     res.redirect('/dashboard');
                   }
                   else{
-                    console.log("sql2 error"+err);
+                    logger.info("sql2 error"+err);
                     req.flash('danger','Updation Unsuccessful');
                     res.redirect('/dashboard');
                   }
@@ -343,7 +343,7 @@ app.post('/updateprofile',(req,res)=>{
       }
       else if(process.env.NODE_ENV==="local")
       {
-        console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+        logger.info(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
         var sql="update `user` set `image`=NULL where `username`='"+username+"'";
         db.query(sql, function(err, result){
           if(err){
@@ -362,13 +362,13 @@ app.post('/updateprofile',(req,res)=>{
         if(err){
           req.flash('danger','Only images with .jpeg/.png/.gif formats are allowed!');
           res.redirect('/updateprofile');
-          console.log("error in upload");
+          logger.info("error in upload");
         }
         else{
           if(req.file===undefined){
             req.flash('danger','Select an image to upload');
             res.redirect('/updateprofile');
-            console.log("no image selected");
+            logger.info("no image selected");
           }
           else{
             if(process.env.NODE_ENV==="development")
@@ -388,7 +388,7 @@ app.post('/updateprofile',(req,res)=>{
             }
             else if(process.env.NODE_ENV==="local")
             {
-              console.log(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
+              logger.info(req.file.originalname + '-' + dt + path.extname(req.file.originalname));
               var u_image=uploadDir + req.file.originalname + '-' + dt + path.extname(req.file.originalname);
               var sql="update `user` set `image`='"+u_image+"' where `username`='"+username+"'";
               db.query(sql, function(err, result){
@@ -446,20 +446,20 @@ app.post('/forgot',(req,res)=>{
   req.checkBody('useremail','Please enter email address').notEmpty();
   var errors=req.validationErrors();
   if(errors){
-    console.log(errors[0]);
+    logger.info(errors[0]);
     res.render('forgot',{errors:errors});
   }
   else{
     var msg=req.body.useremail+"|"+process.env.EMAIL_SOURCE+"|"+process.env.DDB_TABLE+"|"+req.get('host');
-    console.log(msg);
+    logger.info(msg);
     var params = {
       Message: msg, /* required */
       TopicArn:process.env.TOPIC_ARN
     };
     sns.publish(params, function(err, data) {
-      if (err) console.log(err, err.stack); // an error occurred
+      if (err) logger.info(err, err.stack); // an error occurred
       else{
-        console.log(data);
+        logger.info(data);
         req.flash('success','Reset link sent successfully!');
         res.redirect('/forgot');
       }           // successful response
@@ -484,7 +484,7 @@ app.use('/login',login);
 PORT='3000';
 //Start Server
 app.listen(PORT,()=>{
-  console.log('Server started on '+PORT)
+  logger.info('Server started on '+PORT)
 });
 
 app.use(function(req, res, next){
