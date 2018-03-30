@@ -36,8 +36,8 @@
     "Description" : "Domain Name",
     "Type" : "String"
   },
-  "topicarn" : {
-    "Description" : "Lamda Topic ARN",
+  "lambdaArn" : {
+    "Description" : "Lamda Function ARN",
     "Type" : "String"
   }
 },
@@ -98,7 +98,7 @@
                                 "",
                                 [
                                     "sudo echo TOPIC_ARN=",
-                                    {"Ref" : "topicarn"},
+                                    {"Ref": "MySNSTopic"},
                                     " >> /var/.env \n"
                                 ]
                             ]
@@ -225,6 +225,26 @@
         "PubliclyAccessible" : "false",
         "VPCSecurityGroups": [{"Ref": "dbSecurityGroupId"}]
       }
+  },
+  "MySNSTopic":{
+      "Type":"AWS::SNS::Topic",
+      "Properties":{
+        "TopicName":"LambdaTopic",
+        "Subscription":[
+          {
+            "Endpoint":{"Ref": "lambdaArn"}, "Protocol":"lambda"
+          }
+        ]
+      }
+    },
+    "LambdaInvokePermission": {
+    "Type": "AWS::Lambda::Permission",
+    "Properties": {
+      "Action": "lambda:InvokeFunction",
+      "Principal": "sns.amazonaws.com",
+      "SourceArn": {"Ref": "MySNSTopic"},
+      "FunctionName": {"Ref": "lambdaArn"}
+    }
   }
 },
 "Outputs": {

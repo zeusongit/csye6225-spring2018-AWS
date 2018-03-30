@@ -444,6 +444,7 @@ app.get('/forgot',(req,res)=>{
 });
 app.post('/forgot',(req,res)=>{
   req.checkBody('useremail','Please enter email address').notEmpty();
+  req.checkBody('useremail','Please enter a valid email address').isEmail();
   var errors=req.validationErrors();
   if(errors){
     logger.info(errors[0]);
