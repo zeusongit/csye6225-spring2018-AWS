@@ -7,6 +7,7 @@ pwd
 ls -lrt
 echo "#CSYE6225: doing after install: remove webapp if already exist"
 sudo rm -rf webapp
+ls -lrt
 echo "#CSYE6225: doing after install: make dir webapp"
 sudo mkdir -p webapp
 pwd
