@@ -12,7 +12,14 @@ const session = require('express-session');// loads session functionality compat
 const bcrypt=require('bcrypt');// for hashing
 const winston = require('winston');
 
-
+var logger = new winston.Logger({
+    level: 'info',
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: '/var/log/customlog.log' })
+    ]
+  });
+  logger.info("---Logs Initiated---");
 
 const conn=require('./dbconn.js');//DB connection file
 const db=new conn();
@@ -42,15 +49,6 @@ db.connect((err)=>{
   });
   console.log("Mysql connected!...");
 });
-
-var logger = new winston.Logger({
-    level: 'info',
-    transports: [
-      new (winston.transports.Console)(),
-      new (winston.transports.File)({ filename: '/var/log/customlog.log' })
-    ]
-  });
-  logger.info("---Logs Initiated---");
 
 const app=express();
 const s3 = new AWS.S3();
