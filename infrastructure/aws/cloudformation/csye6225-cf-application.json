@@ -31,6 +31,14 @@
   "iaminstance" : {
     "Description" : "Instance Profile Name for CodeDeploy to S3",
     "Type" : "String"
+  },
+  "domainname" : {
+    "Description" : "Domain Name",
+    "Type" : "String"
+  },
+  "lambdaArn" : {
+    "Description" : "Lamda Function ARN",
+    "Type" : "String"
   }
 },
 "Resources": {
@@ -89,6 +97,37 @@
                             "Fn::Join": [
                                 "",
                                 [
+                                    "sudo echo TOPIC_ARN=",
+                                    {"Ref": "MySNSTopic"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo EMAIL_SOURCE=noreply@",
+                                    {"Ref" : "domainname"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo DDB_TABLE=",
+                                    {"Ref" : "stackname"},
+                                    "-csye6225-dynamodb-table",
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
                                     "sudo echo BUCKET=",
                                     {"Ref" : "s3domain"},
                                     " >> /var/.env \n"
@@ -109,7 +148,33 @@
                                     " >> /var/.env \n"
                                 ]
                             ]
-                        }
+                        },
+                        "sudo echo [general] > /var/awslogs.conf \n",
+                        "sudo echo state_file = /var/awslogs/state/agent-state >> /var/awslogs.conf \n",
+                        "sudo echo [/var/log/messages] >> /var/awslogs.conf \n",
+                        "sudo echo file = /var/log/customlog.log >> /var/awslogs.conf \n",
+                        "sudo echo log_group_name = /var/log/syslog >> /var/awslogs.conf \n",
+                        "sudo echo log_stream_name = teststream >> /var/awslogs.conf \n",
+                        "sudo echo datetime_format = %b %d %H:%M:%S >> /var/awslogs.conf \n",
+                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
+                        "sudo python awslogs-agent-setup.py -n -r us-east-1 -c /var/awslogs.conf\n",
+                        "sudo echo [Unit] > /var/awslogs.service \n",
+                        "sudo echo Description=The CloudWatch Logs agent >> /var/awslogs.service \n",
+                        "sudo echo After=rc-local.service >> /var/awslogs.service \n",
+                        "sudo echo [Service] >> /var/awslogs.service \n",
+                        "sudo echo Type=simple >> /var/awslogs.service \n",
+                        "sudo echo Restart=always >> /var/awslogs.service \n",
+                        "sudo echo KillMode=process >> /var/awslogs.service \n",
+                        "sudo echo TimeoutSec=infinity >> /var/awslogs.service \n",
+                        "sudo echo PIDFILE=/var/awslogs/state/awslogs.pid >> /var/awslogs.service \n",
+                        "sudo echo ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile '$PIDFILE' --user awslogs --chuid awslogs '&' >> /var/awslogs.service \n",
+                        "sudo echo [Install] >> /var/awslogs.service \n",
+                        "sudo echo WantedBy=multi-user.target >> /var/awslogs.service \n",
+                        "sudo mv /var/awslogs.service /etc/systemd/system \n",
+                        "sudo echo --Custom Log File-- > /var/log/customlog.log \n",
+                        "sudo chmod 777 /var/log/customlog.log \n",
+                        "sudo systemctl enable awslogs.service \n",
+                        "sudo systemctl start awslogs.service \n"
                     ]
                 ]
             }
@@ -126,11 +191,19 @@
   "DynamoDBTable": {
   "Type" : "AWS::DynamoDB::Table",
   "Properties" : {
-    "AttributeDefinitions" : [ {"AttributeName" : "id", "AttributeType" : "S"}],
-    "KeySchema" : [ {"AttributeName" : "id", "KeyType" : "HASH"} ],
+    "AttributeDefinitions" : [
+      {"AttributeName" : "tkn", "AttributeType" : "S"}
+    ],
+    "KeySchema" : [
+      {"AttributeName" : "tkn", "KeyType" : "HASH"}
+    ],
     "ProvisionedThroughput" : {
-      "ReadCapacityUnits" : 5,
-      "WriteCapacityUnits" : 5
+      "ReadCapacityUnits" : 2,
+      "WriteCapacityUnits" : 2
+    },
+    "TimeToLiveSpecification":{
+      "AttributeName" : "ttl",
+      "Enabled" : true
     },
     "TableName": {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-dynamodb-table"]] }
   }
@@ -152,6 +225,26 @@
         "PubliclyAccessible" : "false",
         "VPCSecurityGroups": [{"Ref": "dbSecurityGroupId"}]
       }
+  },
+  "MySNSTopic":{
+      "Type":"AWS::SNS::Topic",
+      "Properties":{
+        "TopicName":"LambdaTopic",
+        "Subscription":[
+          {
+            "Endpoint":{"Ref": "lambdaArn"}, "Protocol":"lambda"
+          }
+        ]
+      }
+    },
+    "LambdaInvokePermission": {
+    "Type": "AWS::Lambda::Permission",
+    "Properties": {
+      "Action": "lambda:InvokeFunction",
+      "Principal": "sns.amazonaws.com",
+      "SourceArn": {"Ref": "MySNSTopic"},
+      "FunctionName": {"Ref": "lambdaArn"}
+    }
   }
 },
 "Outputs": {
