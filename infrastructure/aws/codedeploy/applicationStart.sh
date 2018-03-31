@@ -4,5 +4,6 @@ pwd
 cd /var/webapp/nodeapp-express
 echo "PWD AND FILES"
 pwd
+pm2 stop app
 ls -lrt
 pm2 start app.js

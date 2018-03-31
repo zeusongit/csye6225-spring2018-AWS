@@ -35,6 +35,64 @@
         "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
       }
     },
+    "EC2ToSNSPolicy" :{
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "EC2ToSNSPolicy",
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "SNS:Publish"
+            ],
+            "Resource": "*"
+        }
+    ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+
+
+
+
+},
+    "EC2ToCloudWatchPolicy" : {
+    "Type" : "AWS::IAM::ManagedPolicy",
+    "Properties" : {
+      "ManagedPolicyName" : "EC2ToCloudWatchPolicy",
+      "PolicyDocument":{
+        "Version": "2012-10-17",
+        "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": [
+                "arn:aws:logs:::*"
+            ]
+        }
+    ]
+
+      },
+      "Roles" : [
+        {
+          "Ref" : "EC2ToS3BucketRole"
+        }
+      ]
+
+    }
+
+},
     "EC2ToS3BucketPolicy" : {
       "Type" : "AWS::IAM::ManagedPolicy",
       "Properties" : {
@@ -48,7 +106,7 @@
                 "s3:Get*",
                 "s3:Put*",
                 "s3:List*",
-                "s3:Delete*"
+		            "s3:Delete*"
               ],
               "Resource" : "*"
             }
@@ -64,6 +122,7 @@
     "EC2ToS3BucketRole" : {
       "Type" : "AWS::IAM::Role",
       "Properties" : {
+        "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy"],
         "AssumeRolePolicyDocument": {
           "Version" : "2012-10-17",
           "Statement" : [
