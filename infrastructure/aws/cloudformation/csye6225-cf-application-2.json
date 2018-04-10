@@ -1,0 +1,392 @@
+{
+"Description" : "Application Stack",
+"AWSTemplateFormatVersion" : "2010-09-09",
+
+"Parameters" : {
+  "stackname" : {
+    "Description" : "Stack Name",
+    "Type" : "String",
+    "Default" : "stack01"
+  },
+  "VpcId" : {
+    "Description" : "Vpc Id",
+    "Type" : "String"
+  },
+  "dbsubnet" : {
+    "Description" : "DB Subnet Group name",
+    "Type" : "String"
+  },
+  "s3domain" : {
+    "Description" : "S3 name",
+    "Type" : "String"
+  },
+  "ec2Subnet" : {
+    "Description" : "Subnet ID for EC2",
+    "Type" : "String"
+  },
+  "ec2SecurityGroup" : {
+    "Description" : "Resource ID for EC2 Security Group",
+    "Type" : "String"
+  },
+  "dbSecurityGroupId" : {
+    "Description" : "Resource ID for DB Security Group",
+    "Type" : "String"
+  },
+  "iaminstance" : {
+    "Description" : "Instance Profile Name for CodeDeploy to S3",
+    "Type" : "String"
+  },
+  "domainname" : {
+    "Description" : "Domain Name",
+    "Type" : "String"
+  },
+  "lambdaArn" : {
+    "Description" : "Lamda Function ARN",
+    "Type" : "String"
+  },
+  "InstanceType" : {
+    "Description" : "Instance Type",
+    "Type" : "String"
+  },
+  "KeyName" : {
+    "Description" : "Key Name",
+    "Type" : "String"
+  },
+  "ImageId" : {
+    "Description" : "Image Id",
+    "Type" : "String"
+  }
+},
+"Resources": {
+  "WebServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "VPCZoneIdentifier" : [{"Ref": "ec2Subnet"},"subnet-775f4a2a"],
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "MinSize" : "3",
+        "MaxSize" : "7",
+        "DesiredCapacity":"3",
+        "Cooldown":"60",
+        "Tags" : [ {
+         "Key" : "Name",
+         "Value" : "MyEC2Instance",
+         "PropagateAtLaunch" : "true"
+         } ],
+        "TargetGroupARNs" : [ { "Ref" : "ALBTargetGroup" } ]
+      }
+    },
+    "LaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "AssociatePublicIpAddress":true,
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Ref" : "ImageId" },
+        "SecurityGroups" : [{"Ref" : "ec2SecurityGroup"}],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile": {"Ref":"iaminstance"},
+        "BlockDeviceMappings" : [
+        {
+          "DeviceName" : "/dev/sda1",
+          "Ebs" : {
+                    "DeleteOnTermination": true,
+                    "VolumeSize": 16,
+                    "VolumeType": "gp2"
+                  }
+        }],
+        "UserData": {
+            "Fn::Base64": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "#!/bin/bash -xe \n",
+                        "sudo apt-get update \n",
+                        "sudo apt-get install openjdk-8-jdk -y\n",
+                        "sudo apt-get install ruby -y \n",
+                        "sudo apt-get install wget -y \n",
+                        "sudo apt-get install python -y \n",
+
+                        "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1 \n",
+                        "curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \n",
+                        "sudo apt-get install -y nodejs \n",
+                        "sudo apt-get install -y build-essential \n",
+                        "sudo npm install pm2 -g \n",
+
+                        "sudo apt-get update \n",
+                        "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install \n",
+                        "sudo chmod +x ./install \n",
+                        "sudo ./install auto \n",
+                        "sudo service codedeploy-agent start \n",
+                        "sudo service codedeploy-agent status \n",
+
+                        "sudo echo NODE_ENV=development > /var/.env \n",
+                        "sudo echo DB_USER=csye6225master >> /var/.env \n",
+                        "sudo echo DB_PASS=csye6225password >> /var/.env \n",
+                        "sudo echo DB_PORT=3306 >> /var/.env \n",
+                        "sudo echo DB_NAME=csye6225 >> /var/.env \n",
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo TOPIC_ARN=",
+                                    {"Ref": "MySNSTopic"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo EMAIL_SOURCE=noreply@",
+                                    {"Ref" : "domainname"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo DDB_TABLE=",
+                                    {"Ref" : "stackname"},
+                                    "-csye6225-dynamodb-table",
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo BUCKET=",
+                                    {"Ref" : "s3domain"},
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "sudo echo DB_HOST=",
+                                    {
+                                        "Fn::GetAtt": [
+                                            "RDSDB",
+                                            "Endpoint.Address"
+                                        ]
+                                    },
+                                    " >> /var/.env \n"
+                                ]
+                            ]
+                        },
+                        "sudo echo [general] > /var/awslogs.conf \n",
+                        "sudo echo state_file = /var/awslogs/state/agent-state >> /var/awslogs.conf \n",
+                        "sudo echo [/var/log/messages] >> /var/awslogs.conf \n",
+                        "sudo echo file = /var/log/customlog.log >> /var/awslogs.conf \n",
+                        "sudo echo log_group_name = /var/log/syslog >> /var/awslogs.conf \n",
+                        "sudo echo log_stream_name = teststream >> /var/awslogs.conf \n",
+                        "sudo echo datetime_format = %b %d %H:%M:%S >> /var/awslogs.conf \n",
+                        "sudo wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py \n",
+                        "sudo python awslogs-agent-setup.py -n -r us-east-1 -c /var/awslogs.conf\n",
+                        "sudo echo [Unit] > /var/awslogs.service \n",
+                        "sudo echo Description=The CloudWatch Logs agent >> /var/awslogs.service \n",
+                        "sudo echo After=rc-local.service >> /var/awslogs.service \n",
+                        "sudo echo [Service] >> /var/awslogs.service \n",
+                        "sudo echo Type=simple >> /var/awslogs.service \n",
+                        "sudo echo Restart=always >> /var/awslogs.service \n",
+                        "sudo echo KillMode=process >> /var/awslogs.service \n",
+                        "sudo echo TimeoutSec=infinity >> /var/awslogs.service \n",
+                        "sudo echo PIDFILE=/var/awslogs/state/awslogs.pid >> /var/awslogs.service \n",
+                        "sudo echo ExecStart=/var/awslogs/bin/awslogs-agent-launcher.sh --start --background --pidfile '$PIDFILE' --user awslogs --chuid awslogs '&' >> /var/awslogs.service \n",
+                        "sudo echo [Install] >> /var/awslogs.service \n",
+                        "sudo echo WantedBy=multi-user.target >> /var/awslogs.service \n",
+                        "sudo mv /var/awslogs.service /etc/systemd/system \n",
+                        "sudo echo --Custom Log File-- > /var/log/customlog.log \n",
+                        "sudo chmod 777 /var/log/customlog.log \n",
+                        "sudo systemctl enable awslogs.service \n",
+                        "sudo systemctl start awslogs.service \n"
+                    ]
+                ]
+            }
+        }
+      }
+    },
+    "WebServerScaleUpPolicy": {
+    "Type": "AWS::AutoScaling::ScalingPolicy",
+    "Properties": {
+      "AdjustmentType": "ChangeInCapacity",
+      "AutoScalingGroupName": {
+        "Ref": "WebServerGroup"
+      },
+      "Cooldown": "60",
+      "ScalingAdjustment": "1"
+    }
+  },
+  "WebServerScaleDownPolicy": {
+    "Type": "AWS::AutoScaling::ScalingPolicy",
+    "Properties": {
+      "AdjustmentType": "ChangeInCapacity",
+      "AutoScalingGroupName": {
+        "Ref": "WebServerGroup"
+      },
+      "Cooldown": "60",
+      "ScalingAdjustment": "-1"
+    }
+  },
+  "CPUAlarmHigh": {
+    "Type": "AWS::CloudWatch::Alarm",
+    "Properties": {
+      "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/EC2",
+      "Statistic": "Average",
+      "Period": "300",
+      "EvaluationPeriods": "2",
+      "Threshold": "90",
+      "AlarmActions": [
+        {
+          "Ref": "WebServerScaleUpPolicy"
+        }
+      ],
+      "Dimensions": [
+        {
+          "Name": "AutoScalingGroupName",
+          "Value": {
+            "Ref": "WebServerGroup"
+          }
+        }
+      ],
+      "ComparisonOperator": "GreaterThanThreshold"
+    }
+  },
+  "CPUAlarmLow": {
+    "Type": "AWS::CloudWatch::Alarm",
+    "Properties": {
+      "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/EC2",
+      "Statistic": "Average",
+      "Period": "300",
+      "EvaluationPeriods": "2",
+      "Threshold": "70",
+      "AlarmActions": [
+        {
+          "Ref": "WebServerScaleDownPolicy"
+        }
+      ],
+      "Dimensions": [
+        {
+          "Name": "AutoScalingGroupName",
+          "Value": {
+            "Ref": "WebServerGroup"
+          }
+        }
+      ],
+      "ComparisonOperator": "LessThanThreshold"
+    }
+  },
+  "ApplicationLoadBalancer" : {
+        "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+        "Properties" : {
+          "Subnets" : [{"Ref": "ec2Subnet"},"subnet-775f4a2a"]
+        }
+      },
+
+      "ALBListener" : {
+        "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+        "Properties" : {
+          "DefaultActions" : [{
+            "Type" : "forward",
+            "TargetGroupArn" : { "Ref" : "ALBTargetGroup" }
+          }],
+          "LoadBalancerArn" : { "Ref" : "ApplicationLoadBalancer" },
+          "Port" : "80",
+          "Protocol" : "HTTP"
+        }
+      },
+
+      "ALBTargetGroup" : {
+        "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+        "Properties" : {
+          "HealthCheckIntervalSeconds" : 30,
+          "HealthCheckTimeoutSeconds" : 5,
+          "HealthyThresholdCount" : 3,
+          "Port" : 3000,
+          "Protocol" : "HTTP",
+          "UnhealthyThresholdCount" : 5,
+          "VpcId" : {"Ref" : "VpcId"}
+        }
+      },
+  "S3" : {
+  "Type" : "AWS::S3::Bucket",
+  "Properties" : {
+    "BucketName" : {"Ref" : "s3domain"},
+  }
+  },
+  "DynamoDBTable": {
+  "Type" : "AWS::DynamoDB::Table",
+  "Properties" : {
+    "AttributeDefinitions" : [
+      {"AttributeName" : "tkn", "AttributeType" : "S"}
+    ],
+    "KeySchema" : [
+      {"AttributeName" : "tkn", "KeyType" : "HASH"}
+    ],
+    "ProvisionedThroughput" : {
+      "ReadCapacityUnits" : 2,
+      "WriteCapacityUnits" : 2
+    },
+    "TimeToLiveSpecification":{
+      "AttributeName" : "ttl",
+      "Enabled" : true
+    },
+    "TableName": {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-dynamodb-table"]] }
+  }
+  },
+  "RDSDB" :   {
+    "Type" : "AWS::RDS::DBInstance",
+    "Properties" :
+      {
+        "AllocatedStorage" : "5",
+        "DBInstanceClass" : "db.t2.medium",
+        "DBInstanceIdentifier" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-RDS-DB"]] },
+        "DBName" : "csye6225",
+        "DBSubnetGroupName" :{"Ref" : "dbsubnet"},
+        "Engine" : "mysql",
+        "EngineVersion" : "5.6.37",
+        "MasterUsername" : "csye6225master",
+        "MasterUserPassword" : "csye6225password",
+        "MultiAZ" : "false",
+        "PubliclyAccessible" : "false",
+        "VPCSecurityGroups": [{"Ref": "dbSecurityGroupId"}]
+      }
+  },
+  "MySNSTopic":{
+      "Type":"AWS::SNS::Topic",
+      "Properties":{
+        "TopicName":"LambdaTopic",
+        "Subscription":[
+          {
+            "Endpoint":{"Ref": "lambdaArn"}, "Protocol":"lambda"
+          }
+        ]
+      }
+    },
+    "LambdaInvokePermission": {
+    "Type": "AWS::Lambda::Permission",
+    "Properties": {
+      "Action": "lambda:InvokeFunction",
+      "Principal": "sns.amazonaws.com",
+      "SourceArn": {"Ref": "MySNSTopic"},
+      "FunctionName": {"Ref": "lambdaArn"}
+    }
+  }
+},
+"Outputs": {
+    "URL" : {
+      "Description" : "The URL of the website",
+      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [
+          "ApplicationLoadBalancer", "DNSName" ]}]]}
+    }
+  }
+}

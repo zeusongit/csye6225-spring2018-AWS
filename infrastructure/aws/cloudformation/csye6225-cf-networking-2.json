@@ -1,0 +1,220 @@
+{
+
+    "Description" : "Networking Stack",
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+    "Parameters" : {
+      "stackname" : {
+        "Description" : "Stack Name",
+        "Type" : "String",
+        "Default" : "stack01",
+
+      }
+
+    },
+
+
+    "Resources" : {
+
+        "vpc1" : {
+          "Type" : "AWS::EC2::VPC",
+          "Properties" : {
+            "CidrBlock" : "10.0.0.0/16",
+            "EnableDnsSupport" : true,
+            "EnableDnsHostnames" : true,
+            "InstanceTenancy" : "default",
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-vpc"]] }}]
+          }
+        },
+
+        "ig1" : {
+          "Type" : "AWS::EC2::InternetGateway",
+          "Properties" : {
+          "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-InternetGateway"]] }}]
+          }
+        },
+
+        "vpc1Attch1" : {
+          "Type" : "AWS::EC2::VPCGatewayAttachment",
+          "Properties" : {
+            "InternetGatewayId" : {"Ref" : "ig1"},
+            "VpcId" : {"Ref" : "vpc1"}
+            }
+
+
+          },
+
+          "routeTable1" : {
+            "Type" : "AWS::EC2::RouteTable",
+            "Properties" : {
+              "VpcId" : {"Ref" : "vpc1"},
+              "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-public-route-table"]] }}]
+            }
+          },
+
+          "route1" : {
+            "Type" : "AWS::EC2::Route",
+            "Properties" : {
+              "DestinationCidrBlock" : "0.0.0.0/0",
+              "GatewayId" : {"Ref" : "ig1"},
+              "RouteTableId" : {"Ref" : "routeTable1"}
+
+            }
+          },
+
+         "mySubnet1" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+            "VpcId" : { "Ref" : "vpc1" },
+            "CidrBlock" : "10.0.0.0/24",
+            "AvailabilityZone" : "us-east-1a",
+            "MapPublicIpOnLaunch" : true,
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-ec2-subnet"]] }}]
+          }
+         },
+        "mySubnetRouteTableAssociation1" : {
+         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties" : {
+            "SubnetId" : { "Ref" : "mySubnet1" },
+            "RouteTableId" : { "Ref" : "routeTable1" }
+         }
+      },
+
+          "routeTable2" : {
+            "Type" : "AWS::EC2::RouteTable",
+            "Properties" : {
+              "VpcId" : {"Ref" : "vpc1"},
+              "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-private-route-table"]] }}]
+            }
+          },
+
+
+          "mySubnet2" : {
+           "Type" : "AWS::EC2::Subnet",
+           "Properties" : {
+             "VpcId" : { "Ref" : "vpc1" },
+             "CidrBlock" : "10.0.1.0/24",
+             "AvailabilityZone" : "us-east-1a",
+             "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-db-subnet1"]] }}]
+           }
+          },
+          "mySubnet3" : {
+           "Type" : "AWS::EC2::Subnet",
+           "Properties" : {
+             "VpcId" : { "Ref" : "vpc1" },
+             "CidrBlock" : "10.0.2.0/24",
+             "AvailabilityZone" : "us-east-1b",
+             "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-db-subnet2"]] }}]
+           }
+          },
+          "mySubnetRouteTableAssociation2" : {
+           "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+           "Properties" : {
+              "SubnetId" : { "Ref" : "mySubnet2" },
+              "RouteTableId" : { "Ref" : "routeTable2" }
+           }
+        },
+        "mySubnetRouteTableAssociation3" : {
+         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties" : {
+            "SubnetId" : { "Ref" : "mySubnet3" },
+            "RouteTableId" : { "Ref" : "routeTable2" }
+         }
+      },
+
+      "DBSubnetGroup" : {
+   "Type" : "AWS::RDS::DBSubnetGroup",
+   "Properties" : {
+      "DBSubnetGroupDescription" : "DB Subnet Group",
+      "DBSubnetGroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-db-subnetgroup"]] },
+      "SubnetIds" : [ {"Ref" : "mySubnet2"},{"Ref" : "mySubnet3"}]
+
+   }
+ },
+
+
+
+
+        "WebServerSecurityGroup": {
+          "Type": "AWS::EC2::SecurityGroup",
+          "Properties": {
+          "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-webapp-secuitygroup"]] },
+          "GroupDescription": "Updated for Load Balancer: NodeJS access via port 3000",
+          "VpcId": { "Ref" : "vpc1" },
+          "SecurityGroupIngress": [
+              {
+                  "IpProtocol": "tcp",
+                  "FromPort": "3000",
+                  "ToPort": "3000",
+                  "CidrIp": "0.0.0.0/0"
+              }
+          ]
+      }
+  },
+
+
+
+
+  "DBEC2SecurityGroup": {
+  "Type" : "AWS::EC2::SecurityGroup",
+  "Properties" : {
+     "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-db-secuitygroup"]] },
+     "GroupDescription" : "allows ingress traffic only from Web App",
+     "SecurityGroupIngress" : [
+          {
+         "Description" : "ingress rule on 3306",
+         "FromPort" : "3306",
+         "IpProtocol" : "tcp",
+         "SourceSecurityGroupId" : { "Ref" : "WebServerSecurityGroup"},
+         "ToPort" : "3306"
+       }
+        ],
+     "VpcId" : { "Ref" : "vpc1" }
+  }
+}
+
+ },
+
+
+    "Outputs" : {
+
+        "vpcId" : {
+
+            "Description" : "The resource id of the created vpc",
+
+            "Value" : {
+
+                "Ref" : "vpc1"
+
+            }
+
+        },
+        "ec2Subnet" : {
+
+            "Description" : "The resource id of the subnet for EC2",
+
+            "Value" : {
+
+                "Ref" : "mySubnet1"
+
+            }
+
+        },
+        "ec2SecurityGroup" : {
+
+
+            "Description" : "The resource id of the Security Group for EC2",
+
+            "Value" : {
+
+                "Ref" : "WebServerSecurityGroup"
+
+            }
+
+        },
+
+    }
+
+
+
+}

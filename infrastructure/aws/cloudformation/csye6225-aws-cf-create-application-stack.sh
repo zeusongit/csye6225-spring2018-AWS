@@ -28,7 +28,11 @@ fnName="lambdaFn"
 lambdaArn=$(aws lambda get-function --function-name $fnName --query Configuration.FunctionArn --output text)
 echo "lambdaArn: $lambdaArn"
 
-createOutput=$(aws cloudformation create-stack --stack-name $stackname --template-body file://csye6225-cf-application.json --parameters ParameterKey=stackname,ParameterValue=$stackname ParameterKey=dbsubnet,ParameterValue=$dbsubnet ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=ec2Subnet,ParameterValue=$subnet1 ParameterKey=ec2SecurityGroup,ParameterValue=$sgec2 ParameterKey=dbSecurityGroupId,ParameterValue=$sgdb ParameterKey=iaminstance,ParameterValue=$iaminstance ParameterKey=domainname,ParameterValue=$trimdomain ParameterKey=lambdaArn,ParameterValue=$lambdaArn)
+imgId="ami-66506c1c"
+instanceType="t2.micro"
+keyName="csye6225"
+
+createOutput=$(aws cloudformation create-stack --stack-name $stackname --template-body file://csye6225-cf-application-2.json --parameters ParameterKey=stackname,ParameterValue=$stackname ParameterKey=dbsubnet,ParameterValue=$dbsubnet ParameterKey=s3domain,ParameterValue=$s3domain ParameterKey=ec2Subnet,ParameterValue=$subnet1 ParameterKey=ec2SecurityGroup,ParameterValue=$sgec2 ParameterKey=dbSecurityGroupId,ParameterValue=$sgdb ParameterKey=iaminstance,ParameterValue=$iaminstance ParameterKey=domainname,ParameterValue=$trimdomain ParameterKey=lambdaArn,ParameterValue=$lambdaArn ParameterKey=InstanceType,ParameterValue=$instanceType ParameterKey=ImageId,ParameterValue=$imgId ParameterKey=KeyName,ParameterValue=$keyName ParameterKey=VpcId,ParameterValue=$vpc)
 
 
 if [ $? -eq 0 ]; then
