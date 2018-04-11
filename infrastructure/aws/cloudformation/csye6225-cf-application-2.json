@@ -440,6 +440,19 @@
       "ServiceRoleArn" : {"Ref" : "CodeDeployServiceRole"},
       "DeploymentGroupName" : {"Ref" : "depname"}
     }
+  },
+  "MyRecordSet": {
+    "Type": "AWS::Route53::RecordSet",
+    "Properties": {
+      "HostedZoneName" : {"Fn::Join" : ["",[{"Ref" : "domainname"},"."]] },
+      "Name": {"Fn::Join" : ["",["www.",{"Ref" : "domainname"},"."]] },
+      "Type": "A",
+      "AliasTarget": {
+          "HostedZoneId" : {"Fn::GetAtt": ["ApplicationLoadBalancer", "CanonicalHostedZoneID"]},
+          "DNSName": {"Fn::GetAtt": ["ApplicationLoadBalancer", "DNSName"]},
+          "EvaluateTargetHealth": "false"
+      }
+    }
   }
 },
 "Outputs": {
