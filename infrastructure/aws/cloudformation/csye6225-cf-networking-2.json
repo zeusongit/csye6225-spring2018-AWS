@@ -72,13 +72,30 @@
             "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-ec2-subnet"]] }}]
           }
          },
-        "mySubnetRouteTableAssociation1" : {
-         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-         "Properties" : {
-            "SubnetId" : { "Ref" : "mySubnet1" },
-            "RouteTableId" : { "Ref" : "routeTable1" }
-         }
-      },
+         "mySubnetRouteTableAssociation1" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref" : "mySubnet1" },
+             "RouteTableId" : { "Ref" : "routeTable1" }
+          }
+         },
+         "mySubnet4" : {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+            "VpcId" : { "Ref" : "vpc1" },
+            "CidrBlock" : "10.0.3.0/24",
+            "AvailabilityZone" : "us-east-1b",
+            "MapPublicIpOnLaunch" : true,
+            "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-ec2-subnet2"]] }}]
+          }
+         },
+         "mySubnetRouteTableAssociation4" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties" : {
+             "SubnetId" : { "Ref" : "mySubnet4" },
+             "RouteTableId" : { "Ref" : "routeTable1" }
+          }
+         },
 
           "routeTable2" : {
             "Type" : "AWS::EC2::RouteTable",
@@ -87,8 +104,6 @@
               "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-private-route-table"]] }}]
             }
           },
-
-
           "mySubnet2" : {
            "Type" : "AWS::EC2::Subnet",
            "Properties" : {

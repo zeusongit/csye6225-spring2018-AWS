@@ -21,11 +21,15 @@
     "Type" : "String"
   },
   "ec2Subnet" : {
-    "Description" : "Subnet ID for EC2",
+    "Description" : "EC2 Subnet ID 1 for LB",
+    "Type" : "String"
+  },
+  "ec2Subnet2" : {
+    "Description" : "EC2 Subnet ID 2 for LB",
     "Type" : "String"
   },
   "ec2SecurityGroup" : {
-    "Description" : "Resource ID for EC2 Security Group",
+    "Description" : "SG Resource ID for LB",
     "Type" : "String"
   },
   "dbSecurityGroupId" : {
@@ -55,13 +59,33 @@
   "ImageId" : {
     "Description" : "Image Id",
     "Type" : "String"
+  },
+  "appname" : {
+    "Description" : "Application Name",
+    "Type" : "String"
+
+  },
+  "depname" : {
+    "Description" : "Deployment Group Name",
+    "Type" : "String"
+
+  },
+  "CodeDeployServiceRole" : {
+    "Description" : "Application Name",
+    "Type" : "String"
+
+  },
+  "SSLArn" : {
+    "Description" : "SSL Arn",
+    "Type" : "String"
+
   }
 },
 "Resources": {
   "WebServerGroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "VPCZoneIdentifier" : [{"Ref": "ec2Subnet"},"subnet-775f4a2a"],
+        "VPCZoneIdentifier" : [{"Ref": "ec2Subnet"}],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "3",
         "MaxSize" : "7",
@@ -288,7 +312,9 @@
   "ApplicationLoadBalancer" : {
         "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
         "Properties" : {
-          "Subnets" : [{"Ref": "ec2Subnet"},"subnet-775f4a2a"]
+          "Name":"ApplicationLoadBalancer",
+          "Subnets" : [{"Ref": "ec2Subnet"},{"Ref": "ec2Subnet2"}],
+          "SecurityGroups": [{"Ref": "ec2SecurityGroup"}]
         }
       },
 
@@ -304,13 +330,27 @@
           "Protocol" : "HTTP"
         }
       },
-
+      "ALBListener" : {
+        "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+        "Properties" : {
+          "DefaultActions" : [{
+            "Type" : "forward",
+            "TargetGroupArn" : { "Ref" : "ALBTargetGroup" }
+          }],
+          "Certificates" : [{"CertificateArn":{"Ref" : "SSLArn"}}],
+          "LoadBalancerArn" : { "Ref" : "ApplicationLoadBalancer" },
+          "Port" : "443",
+          "Protocol" : "HTTPS"
+        }
+      },
       "ALBTargetGroup" : {
         "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
         "Properties" : {
+          "Name" : "ALBTargetGroup",
           "HealthCheckIntervalSeconds" : 30,
           "HealthCheckTimeoutSeconds" : 5,
           "HealthyThresholdCount" : 3,
+          "HealthCheckPath" : "/",
           "Port" : 3000,
           "Protocol" : "HTTP",
           "UnhealthyThresholdCount" : 5,
@@ -379,6 +419,26 @@
       "Principal": "sns.amazonaws.com",
       "SourceArn": {"Ref": "MySNSTopic"},
       "FunctionName": {"Ref": "lambdaArn"}
+    }
+  },
+  "CodeDeployApplication": {
+    "Type": "AWS::CodeDeploy::Application",
+    "Properties": {
+      "ApplicationName" : {"Ref" : "appname"}
+    }
+  },
+   "CodeDeployDeploymentGroup": {
+    "Type": "AWS::CodeDeploy::DeploymentGroup",
+    "Properties": {
+      "ApplicationName" : {"Ref" : "appname"},
+      "AutoScalingGroups" : [ {"Ref" : "WebServerGroup" } ],
+      "Ec2TagFilters" : [{
+        "Key" : "Name",
+        "Value" : "MyEC2Instance",
+        "Type" : "KEY_AND_VALUE"
+      }],
+      "ServiceRoleArn" : {"Ref" : "CodeDeployServiceRole"},
+      "DeploymentGroupName" : {"Ref" : "depname"}
     }
   }
 },

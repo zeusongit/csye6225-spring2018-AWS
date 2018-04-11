@@ -7,16 +7,6 @@
       "Type" : "String"
 
     },
-    "appname" : {
-      "Description" : "Application Name",
-      "Type" : "String"
-
-    },
-    "depname" : {
-      "Description" : "Deployment Group Name",
-      "Type" : "String"
-
-    },
     "accid" : {
       "Description" : "Account Id",
       "Type" : "String"
@@ -297,25 +287,6 @@
         {
           "BucketName" : {"Ref" : "s3domain"}
         }
-    },
-    "CodeDeployApplication": {
-      "Type": "AWS::CodeDeploy::Application",
-      "Properties": {
-        "ApplicationName" : {"Ref" : "appname"}
-      }
-    },
-     "CodeDeployDeploymentGroup": {
-      "Type": "AWS::CodeDeploy::DeploymentGroup",
-      "Properties": {
-        "ApplicationName" : {"Ref" : "appname"},
-        "Ec2TagFilters" : [{
-          "Key" : "Name",
-          "Value" : "MyEC2Instance",
-          "Type" : "KEY_AND_VALUE"
-        }],
-        "ServiceRoleArn" : {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]},
-        "DeploymentGroupName" : {"Ref" : "depname"}
-      }
     }
 },
     "Outputs" : {
