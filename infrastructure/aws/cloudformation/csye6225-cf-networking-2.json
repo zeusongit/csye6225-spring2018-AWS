@@ -154,7 +154,7 @@
           "Type": "AWS::EC2::SecurityGroup",
           "Properties": {
           "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-webapp-secuitygroup"]] },
-          "GroupDescription": "Updated for Load Balancer: NodeJS access via port 3000",
+          "GroupDescription": "Updated for Web App: NodeJS access via port 3000",
           "VpcId": { "Ref" : "vpc1" },
           "SecurityGroupIngress": [
               {
@@ -166,6 +166,22 @@
           ]
       }
   },
+  "LoadBalancerSecurityGroup": {
+    "Type": "AWS::EC2::SecurityGroup",
+    "Properties": {
+    "GroupName" : {"Fn::Join" : ["",[{"Ref" : "stackname"},"-csye6225-lb-secuitygroup"]] },
+    "GroupDescription": "Updated for Load Balancer: LB access via port 443 for HTTPS",
+    "VpcId": { "Ref" : "vpc1" },
+    "SecurityGroupIngress": [
+        {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+        }
+    ]
+}
+},
 
 
 

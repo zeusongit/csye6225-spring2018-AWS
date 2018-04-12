@@ -79,6 +79,11 @@
     "Description" : "SSL Arn",
     "Type" : "String"
 
+  },
+  "sglb" : {
+    "Description" : "LB SG",
+    "Type" : "String"
+
   }
 },
 "Resources": {
@@ -314,7 +319,7 @@
         "Properties" : {
           "Name":"ApplicationLoadBalancer",
           "Subnets" : [{"Ref": "ec2Subnet"},{"Ref": "ec2Subnet2"}],
-          "SecurityGroups": [{"Ref": "ec2SecurityGroup"}]
+          "SecurityGroups": [{"Ref": "sglb"}]
         }
       },
 
@@ -350,7 +355,6 @@
           "HealthCheckIntervalSeconds" : 30,
           "HealthCheckTimeoutSeconds" : 5,
           "HealthyThresholdCount" : 3,
-          "HealthCheckPath" : "/",
           "Port" : 3000,
           "Protocol" : "HTTP",
           "UnhealthyThresholdCount" : 5,
@@ -437,6 +441,11 @@
         "Value" : "MyEC2Instance",
         "Type" : "KEY_AND_VALUE"
       }],
+      "LoadBalancerInfo": {
+          "ElbInfoList": [{
+            "Name": {"Fn::GetAtt": ["ApplicationLoadBalancer", "LoadBalancerName"]}
+          }]
+        },
       "ServiceRoleArn" : {"Ref" : "CodeDeployServiceRole"},
       "DeploymentGroupName" : {"Ref" : "depname"}
     }
