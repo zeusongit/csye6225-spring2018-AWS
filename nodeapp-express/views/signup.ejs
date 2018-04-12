@@ -10,14 +10,14 @@
 <% } %>
 <form method="POST" action="/signup">
   <table>
-    <tr><td>
-  Username: </td><td> <input type="text" name="username" id="username"></td></tr>
-  <tr><td>
-  Password: </td><td><input type="password" name="pass" id="pass"></td></tr>
-  <tr><td>
-  Email: </td><td><input type="text" name="email" id="email"></td></tr>
-  <tr><td></td><td>
-  <input type="submit" value="Signup"></td></tr>
+    <tr><td style="font-size:16px">
+  <b>Username: </b></td><td> <input type="text" name="username" class="form-control" id="username"></td></tr>
+  <tr><td style="font-size:16px">
+  <b>Password: </b></td><td style="padding-top:8px"><input type="password" name="pass" class="form-control" id="pass"></td></tr>
+  <tr><td style="font-size:16px">
+  <b>Email: </b></td><td style="padding-top:8px"><input type="text" name="email" class="form-control" id="email"></td></tr>
+  <tr><td></td><td style="padding-top:8px">
+  <input type="submit" class="btn btn-primary" style="font-size:16px;width:100%" value="Signup"></td></tr>
 </table>
 </form>
 <% include partials/footer %>

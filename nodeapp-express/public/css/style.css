@@ -1,5 +1,6 @@
-html,body{height: 100%;}
-body{background: linear-gradient(to bottom right, white, #19B5FE);}
+html,body{height: 100%; margin: 0; padding: 0;}
+body{height: 100%; margin: 0; padding: 0;background-size:100% 100%;
+            background-repeat: no-repeat;}
 
 .footer {
   color: #fff;

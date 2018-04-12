@@ -10,12 +10,12 @@
 <% } %>
 <form method="POST" action="/login">
   <table>
-    <tr><td>
-  Username: </td><td> <input type="text" name="username" id="username"></td></tr>
-  <tr><td>
-  Password: </td><td style="padding-top:5px"><input type="password" name="pass" id="pass"></td></tr>
+    <tr><td style="font-size:16px">
+  <b>Username: </b> </td><td> <input type="text" class="form-control" name="username" id="username"></td></tr>
+  <tr><td style="font-size:16px">
+  <b>Password: </b></td><td style="padding-top:5px"><input type="password" name="pass" class="form-control" id="pass"></td></tr>
   <tr><td></td><td style="padding-top:8px">
-  <input type="submit" value="LogIn"></td></tr>
+  <input type="submit" class="btn btn-primary" style="font-size:16px;width:100%" value="LogIn"></td></tr>
   <tr><td></td><td style="padding-top:5px">
   <a href="/forgot" style="color:#22313F">Forgot Password?</a></td></tr>
 </table>
