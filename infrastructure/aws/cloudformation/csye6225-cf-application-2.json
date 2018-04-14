@@ -358,6 +358,9 @@
           "Port" : 3000,
           "Protocol" : "HTTP",
           "UnhealthyThresholdCount" : 5,
+          "TargetGroupAttributes" : [
+              {"Key" : "stickiness.enabled","Value" : "true"}
+          ],
           "VpcId" : {"Ref" : "VpcId"}
         }
       },
