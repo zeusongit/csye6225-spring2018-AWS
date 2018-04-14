@@ -1,0 +1,23 @@
+<% include partials/header %>
+<h1>Web App Signup</h1><br/>
+<%- messages('messages',locals) %>
+<% if(errors){%>
+    <% errors.forEach(function(error){ %>
+      <div class="alert alert-danger">
+        <%= error.msg %>
+      </div>
+    <% }) %>
+<% } %>
+<form method="POST" action="/signup">
+  <table>
+    <tr><td style="font-size:16px">
+  <b>Username: </b></td><td> <input type="text" name="username" class="form-control" id="username"></td></tr>
+  <tr><td style="font-size:16px">
+  <b>Password: </b></td><td style="padding-top:8px"><input type="password" name="pass" class="form-control" id="pass"></td></tr>
+  <tr><td style="font-size:16px">
+  <b>Email: </b></td><td style="padding-top:8px"><input type="text" name="email" class="form-control" id="email"></td></tr>
+  <tr><td></td><td style="padding-top:8px">
+  <input type="submit" class="btn btn-primary" style="font-size:16px;width:100%" value="Signup"></td></tr>
+</table>
+</form>
+<% include partials/footer %>

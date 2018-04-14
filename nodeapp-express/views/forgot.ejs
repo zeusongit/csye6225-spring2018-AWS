@@ -1,0 +1,21 @@
+<% include partials/header %>
+<h1>Reset Password</h1><br/>
+<%- messages('messages',locals) %>
+<% if(errors){%>
+    <% errors.forEach(function(error){ %>
+      <div class="alert alert-danger">
+        <%= error.msg %>
+      </div>
+    <% }) %>
+<% } %>
+<form method="POST" action="/forgot">
+  <table>
+    <tr><td></td><td>Please enter your email address below, a reset link will be send to this email.</td></tr>
+    <tr><td colspan="2"><br/></td></tr>
+    <tr><td>
+    Email: </td><td> <input type="text" name="useremail" id="useremail"></td></tr>
+    <tr><td></td><td style="padding-top:5px">
+    <input type="submit" value="Submit"></td></tr>
+</table>
+</form>
+<% include partials/footer %>

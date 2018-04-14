@@ -1,0 +1,300 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "IAM Policy and roles for EC2,CodeDeploy and TravisCI : CD-CI Stack",
+  "Parameters" : {
+    "s3domain" : {
+      "Description" : "S3 Bucket Name",
+      "Type" : "String"
+
+    },
+    "accid" : {
+      "Description" : "Account Id",
+      "Type" : "String"
+    }
+  },
+  "Resources" : {
+    "EC2ToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ],
+        "InstanceProfileName":"EC2ToS3BucketInstanceProfile"
+      }
+    },
+    "EC2ToSNSPolicy" :{
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "EC2ToSNSPolicy",
+        "PolicyDocument" : {
+          "Version": "2012-10-17",
+          "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "SNS:Publish"
+            ],
+            "Resource": "*"
+        }
+    ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+
+
+
+
+},
+    "EC2ToCloudWatchPolicy" : {
+    "Type" : "AWS::IAM::ManagedPolicy",
+    "Properties" : {
+      "ManagedPolicyName" : "EC2ToCloudWatchPolicy",
+      "PolicyDocument":{
+        "Version": "2012-10-17",
+        "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams"
+            ],
+            "Resource": [
+                "arn:aws:logs:::*"
+            ]
+        }
+    ]
+
+      },
+      "Roles" : [
+        {
+          "Ref" : "EC2ToS3BucketRole"
+        }
+      ]
+
+    }
+
+},
+    "EC2ToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "EC2ToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Action" : [
+                "s3:Get*",
+                "s3:Put*",
+                "s3:List*",
+		            "s3:Delete*"
+              ],
+              "Resource" : "*"
+            }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "EC2ToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "EC2ToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy"],
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToS3BucketInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "TravisToS3BucketPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "s3:PutObject"
+                  ],
+                  "Resource": [
+                    {"Fn::Join" : ["",["arn:aws:s3:::",{"Ref" : "s3domain"},"/*"]] }
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToS3BucketRole"
+          }
+        ]
+      }
+    },
+    "TravisToS3BucketRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "TravisToCodeDeployInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployPolicy" : {
+      "Type" : "AWS::IAM::ManagedPolicy",
+      "Properties" : {
+        "ManagedPolicyName" : "TravisToCodeDeployPolicy",
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement": [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:RegisterApplicationRevision",
+                      "codedeploy:GetApplicationRevision"
+                  ],
+                  "Resource": [
+                       {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":application:csye6225CodeDeployApplication"]]}
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:CreateDeployment",
+                      "codedeploy:GetDeployment"
+                  ],
+                  "Resource": [
+                      "*"
+                  ]
+              },
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                      "codedeploy:GetDeploymentConfig"
+                  ],
+                  "Resource": [
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.OneAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.HalfAtATime"]]},
+                    {"Fn::Join" : ["",["arn:aws:codedeploy:us-east-1:",{"Ref" : "accid"},":deploymentconfig:CodeDeployDefault.AllAtOnce"]]}
+                  ]
+              }
+          ]
+        },
+        "Roles" : [
+          {
+            "Ref" : "TravisToCodeDeployRole"
+          }
+        ]
+      }
+    },
+    "TravisToCodeDeployRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "Service" : ["ec2.amazonaws.com"]
+              },
+              "Action" : [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path" : "/"
+      }
+    },
+    "CodeDeployServiceRole" : {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
+              "AssumeRolePolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "ec2.amazonaws.com", "codedeploy.amazonaws.com"]
+                  },
+                "Action": [ "sts:AssumeRole" ]
+                } ]
+              },
+          "RoleName": "CodeDeployServiceRole"
+          }
+        },
+    "CodeDeployS3Bucket" : {
+        "Type" : "AWS::S3::Bucket",
+        "Properties" :
+        {
+          "BucketName" : {"Ref" : "s3domain"}
+        }
+    }
+},
+    "Outputs" : {
+      "CodeDeployServiceRoleArn" : {
+        "Description" : "Code Deploy Arn",
+        "Value" : {
+          "Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"]}
+        }
+      }
+
+}

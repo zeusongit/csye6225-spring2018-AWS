@@ -1,0 +1,19 @@
+version: 0.0
+os: linux
+
+files:
+  - source: ./csye6225-spring2018.zip
+    destination: /var
+hooks:
+  AfterInstall:
+   - location: ./afterInstall.sh
+     timeout: 180
+     runas: ubuntu
+  ApplicationStart:
+   - location: ./applicationStart.sh
+     timeout: 180
+     runas: ubuntu
+  ValidateService:
+   - location: ./validateService.sh
+     timeout: 180
+     runas: ubuntu
