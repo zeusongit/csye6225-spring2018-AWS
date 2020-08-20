@@ -9,7 +9,7 @@
   "author": "singh.vika@husky.neu.edu",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^5.0.0",
     "handlebars": "^4.0.11",
     "hapi": "^16.6.2",
     "hapi-auth-cookie": "^7.0.0",
